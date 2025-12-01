@@ -11,7 +11,7 @@ const columns = [
   { key: "recivedVia", label: "Received Via" },
   { key: "driverName", label: "Driver" },
   { key: "pickUpFrom", label: "Pickup From" },
-  { key: "tripStatus", label: "Status" }
+  { key: "status", label: "Status" }
 ];
 
 const TripList: React.FC = () => {
