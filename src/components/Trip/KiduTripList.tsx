@@ -7,7 +7,7 @@ interface KiduServerTripListProps {
   title: string;
   subtitle?: string;
   fetchMode: "all" | "today" | "status";
-  status?: "Scheduled" | "Completed" | "Canceled";
+  status?: "Scheduled" | "Completed" | "Canceled" | "Ongoing" | "Upcoming";
   showAddButton?: boolean;
 }
 
@@ -88,8 +88,8 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
       subtitle={subtitle}
       columns={columns}
       idKey="tripOrderId"
-      addButtonLabel="Add Trip"
-      addRoute="/trips/add"
+      addButtonLabel="Add New Trip"
+      addRoute="/dashboard/trip-create"
       viewRoute="/dashboard/trip-view"
       editRoute="/dashboard/trip-edit"
       showAddButton={showAddButton}

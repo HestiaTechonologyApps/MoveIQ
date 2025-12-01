@@ -12,6 +12,7 @@ import KiduPrevious from "../../components/KiduPrevious";
 import KiduPaymentAccordion from "../../components/KiduPaymentAccordion";
 import { getFullImageUrl } from "../../constants/API_ENDPOINTS";
 import defaultProfile from "../../assets/Images/profile.jpeg";
+import KiduCommentAccordion from "../../components/KiduCommentAccordion";
 
 const DriverView: React.FC = () => {
   const navigate = useNavigate();
@@ -129,9 +130,9 @@ const DriverView: React.FC = () => {
             height={100}
             className="mb-3"
             style={{ border: "3px solid #18575A", objectFit: "cover" }}
-            onError={(e: any) => { 
+            onError={(e: any) => {
               console.error("Image failed to load:", imageUrl);
-              e.target.src = defaultProfile; 
+              e.target.src = defaultProfile;
             }}
           />
 
@@ -159,6 +160,11 @@ const DriverView: React.FC = () => {
             </tbody>
           </Table>
         </div>
+        {/* Comments */}
+        <KiduCommentAccordion
+          tableName="Driver"
+          recordId={recordId}
+        />
 
         {/* Payment Accordion */}
         <KiduPaymentAccordion

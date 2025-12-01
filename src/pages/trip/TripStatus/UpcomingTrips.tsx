@@ -7,7 +7,7 @@ const UpcomingTrips: React.FC = () => (
     title="Upcoming Trips"
     subtitle="List of trips that are upcoming with quick edit & view actions"
     fetchMode="status"
-    status="Completed"
+    status="Upcoming"
     showAddButton={false}
   />
 );

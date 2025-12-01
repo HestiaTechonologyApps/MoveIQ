@@ -14,6 +14,7 @@ import type { Driver } from "../../types/Driver.types";
 import KiduPaymentAccordion from "../../components/KiduPaymentAccordion";
 import { getFullImageUrl } from "../../constants/API_ENDPOINTS";
 import defaultProfile from "../../assets/Images/profile.jpeg";
+import KiduCommentAccordion from "../../components/KiduCommentAccordion";
 
 const DriverEdit: React.FC = () => {
   const navigate = useNavigate();
@@ -125,20 +126,20 @@ const DriverEdit: React.FC = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-     if (formData.dob) {
-    const dob = new Date(formData.dob);
-    const today = new Date();
-    
-    const age = today.getFullYear() - dob.getFullYear();
-    const m = today.getMonth() - dob.getMonth();
+    if (formData.dob) {
+      const dob = new Date(formData.dob);
+      const today = new Date();
 
-    const isUnder18 = age < 18 || (age === 18 && m < 0);
+      const age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
 
-    if (isUnder18) {
-      toast.error("Driver must be at least 18 years old");
-      return;
+      const isUnder18 = age < 18 || (age === 18 && m < 0);
+
+      if (isUnder18) {
+        toast.error("Driver must be at least 18 years old");
+        return;
+      }
     }
-  }
     if (!validateForm()) return;
 
     try {
@@ -211,15 +212,15 @@ const DriverEdit: React.FC = () => {
             {/* IMAGE SECTION */}
             <Col xs={12} md={4} className="d-flex flex-column align-items-center mb-4">
               <div style={{ position: "relative", width: "160px", height: "160px" }}>
-                <Image 
+                <Image
                   src={imagePreview || defaultProfile}
-                  roundedCircle 
-                  width={160} 
+                  roundedCircle
+                  width={160}
                   height={160}
                   style={{ objectFit: "cover", border: "1px solid #ccc" }}
-                  onError={(e: any) => { 
+                  onError={(e: any) => {
                     console.error("Image load error, using default");
-                    e.target.src = defaultProfile; 
+                    e.target.src = defaultProfile;
                   }}
                 />
 
@@ -331,7 +332,7 @@ const DriverEdit: React.FC = () => {
               </Row>
             </Col>
           </Row>
-           {/* BUTTONS */}
+          {/* BUTTONS */}
           <div className="d-flex gap-2 justify-content-end mt-4">
             <KiduReset initialValues={initialValues} setFormData={setFormData} />
             <Button type="submit" style={{ backgroundColor: "#18575A", border: "none" }}>Update</Button>
@@ -340,6 +341,10 @@ const DriverEdit: React.FC = () => {
           {/* Attachments */}
           <Row className="mb-2">
             <Col xs={12}>
+              <KiduCommentAccordion
+                tableName="Driver"
+                recordId={recordId}
+              />
               <KiduPaymentAccordion
                 relatedEntityId={recordId}
                 relatedEntityType="driver"

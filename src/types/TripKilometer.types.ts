@@ -14,6 +14,7 @@ export interface TripKilometer {
   tripStartReading: number;
   tripEndReading: number;
   totalKM: number;
+  waitingHours?:string;
   createdOn: string;
   createdOnString: string;
   auditLogs: any[];

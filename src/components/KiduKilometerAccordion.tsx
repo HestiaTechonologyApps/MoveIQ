@@ -65,6 +65,7 @@ const KiduKmAccordion = forwardRef<KiduKilometerAccordionRef, KiduKilometerAccor
           tripStartReading: formData.blackTopKm,
           tripEndReading: formData.gradedKm,
           totalKM: formData.totalKM,
+          waitingHours:formData.waitingHours,
           createdOn: new Date().toISOString(),
         };
 
@@ -148,6 +149,7 @@ const KiduKmAccordion = forwardRef<KiduKilometerAccordionRef, KiduKilometerAccor
                       <th className="bg-secondary text-white">Sl No</th>
                       <th className="bg-secondary text-white">K.M Id</th>
                       <th className="bg-secondary text-white">Vehicle</th>
+                       <th className="bg-secondary text-white">Waiting Hours</th>
                       <th className="bg-secondary text-white">Time In</th>
                       <th className="bg-secondary text-white">Time Out</th>
                       <th className="bg-secondary text-white">Black Top KM</th>
@@ -163,6 +165,7 @@ const KiduKmAccordion = forwardRef<KiduKilometerAccordionRef, KiduKilometerAccor
                         <td>{i + 1}</td>
                         <td>{k.tripKiloMeterId}</td>
                         <td>{k.vehicleName}</td>
+                         <td>{k.waitingHours}</td>
                         <td>{k.tripStartTimeString}</td>
                         <td>{k.tripEndingTimeString}</td>
                         <td>{k.tripStartReading}</td>
@@ -209,7 +212,8 @@ const KiduKmAccordion = forwardRef<KiduKilometerAccordionRef, KiduKilometerAccor
             tripEndingTimeString: editData.tripEndingTimeString,
             tripStartReading: editData.tripStartReading,
             tripEndReading: editData.tripEndReading,
-            vehicleName:editData.vehicleName
+            vehicleName:editData.vehicleName,
+            waitingHours:editData.waitingHours
           } : null}
         />
 

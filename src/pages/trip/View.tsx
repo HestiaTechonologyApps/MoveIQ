@@ -193,7 +193,7 @@ const TripView: React.FC = () => {
              <Col xs={12} md={4}>
               <div className="fw-semibold" style={{ fontSize: "1rem" }}>Vehicle Take-Off Time</div>
               <div className="text-muted" style={{ fontSize: "0.85rem" }}>
-                {data.toDateString || "-"}
+                {data.vehicleTakeOfTimeString || "-"}
               </div>
             </Col>
 

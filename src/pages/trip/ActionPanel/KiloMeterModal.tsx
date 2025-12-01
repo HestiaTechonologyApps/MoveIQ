@@ -24,6 +24,7 @@ const KmModal: React.FC<KmModalProps> = ({ show, onHide, onSave, editData }) => 
   const [blackTopKm, setBlackTopKm] = useState(0);
   const [gradedKm, setGradedKm] = useState(0);
   const [totalKm, setTotalKm] = useState(0);
+  const [waitingHours, setWaitingHours] = useState("");
 
   useEffect(() => { setTotalKm(blackTopKm + gradedKm) }, [blackTopKm, gradedKm]);
 
@@ -34,6 +35,7 @@ const KmModal: React.FC<KmModalProps> = ({ show, onHide, onSave, editData }) => 
       setVehicleName(editData.vehicleName);
       setBlackTopKm(editData.tripStartReading);
       setGradedKm(editData.tripEndReading);
+      setWaitingHours(editData.waitingHours)
 
       // eslint-disable-next-line react-hooks/immutability
       const t1 = parseTimeString(editData.tripStartTimeString);
@@ -82,6 +84,7 @@ const KmModal: React.FC<KmModalProps> = ({ show, onHide, onSave, editData }) => 
     setBlackTopKm(0);
     setGradedKm(0);
     setTotalKm(0);
+    setWaitingHours("")
   };
 
   const handleSubmit = () => {
@@ -96,7 +99,8 @@ const KmModal: React.FC<KmModalProps> = ({ show, onHide, onSave, editData }) => 
       timeOut: convertTo24HourISO(timeOut, timeOutAmPm),
       blackTopKm,
       gradedKm,
-      totalKm
+      totalKm,
+      waitingHours
     });
 
     resetForm();
@@ -122,7 +126,7 @@ const KmModal: React.FC<KmModalProps> = ({ show, onHide, onSave, editData }) => 
         <Modal.Body style={{ fontFamily: "Urbanist" }}>
           <Form>
             <Row>
-              <Col md={12}>
+              <Col md={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Vehicle <span className="text-danger">*</span></Form.Label>
                   <InputGroup>
@@ -131,6 +135,12 @@ const KmModal: React.FC<KmModalProps> = ({ show, onHide, onSave, editData }) => 
                       <BsSearch />
                     </Button>
                   </InputGroup>
+                </Form.Group>
+              </Col>
+               <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Waiting Hours<span className="text-danger">*</span></Form.Label>
+                  <Form.Control type="number" value={waitingHours} onChange={e => setWaitingHours((e.target.value))} min={0} />
                 </Form.Group>
               </Col>
             </Row>

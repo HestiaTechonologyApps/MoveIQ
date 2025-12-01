@@ -81,6 +81,7 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
                 tripStartReading: formData.blackTopKm,
                 tripEndReading: formData.gradedKm,
                 totalKM: formData.totalKM,
+                waitingHours:formData.waitingHours,
                 createdOn: new Date().toISOString(),
             };
 

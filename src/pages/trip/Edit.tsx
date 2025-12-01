@@ -37,9 +37,6 @@ const TripEdit: React.FC = () => {
     { name: "vehicleTakeOfTime", rules: { required: true, type: "text" as const, label: "Vehicle Take-Off Date" } },
     { name: "takeOffTime", rules: { required: true, type: "text" as const, label: "Time" } },
     { name: "takeOffAmPm", rules: { required: true, type: "text" as const, label: "AM/PM" } },
-
-    { name: "driverWaitingHours", rules: { required: true, type: "text" as const, label: "Driver waiting hours" } },
-
     { name: "driverName", rules: { required: true, type: "text" as const, label: "Driver Name" } },
     { name: "dropLocations", rules: { required: true, type: "dropLocations" as const, label: "Drop Locations" } },
     { name: "paymentMode", rules: { required: true, type: "select" as const, label: "Payment Mode" } },
@@ -144,8 +141,8 @@ const TripEdit: React.FC = () => {
             toTime: toParsed.time,
             toAmPm: toParsed.ampm,
             vehicleTakeOfTime,
-            takeOffTime:takeoffParsed.time,
-            takeOffAmPm:takeoffParsed.ampm,
+            takeOffTime: takeoffParsed.time,
+            takeOffAmPm: takeoffParsed.ampm,
             pickupFrom: trip.fromLocation || "",
             driverName: trip.driverName || "",
             dropLocations: drops.length > 0 ? drops : [""],
@@ -492,19 +489,7 @@ const TripEdit: React.FC = () => {
                   </Col>
                 </Row>
               </Col>
-              {/* Driver waiting hours */}
-              {/* <Col md={6}>
-                <Form.Label className="mb-1 fw-medium">{getLabel("driverWaitingHours")}</Form.Label>
-                <Form.Control size="sm" type="text" name="driverWaitingHours"
-                  placeholder="Enter driver waiting hours" value={formData.driverWaitingHours}
-                  onChange={handleChange} onBlur={() => validateField("driverWaitingHours", formData.driverWaitingHours)} />
-                {errors.driverWaitingHours && <div className="text-danger small">{errors.driverWaitingHours}</div>}
-              </Col> */}
-            </Row>
-
-            {/* PAYMENT */}
-            <Row className="mb-2 mx-3">
-              <Col md={6}>
+               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("paymentMode")}</Form.Label>
                 <Form.Select size="sm" name="paymentMode" value={formData.paymentMode}
                   onChange={handleChange} onBlur={() => validateField("paymentMode", formData.paymentMode)}>
@@ -516,29 +501,33 @@ const TripEdit: React.FC = () => {
                 </Form.Select>
                 {errors.paymentMode && <div className="text-danger small">{errors.paymentMode}</div>}
               </Col>
+            </Row>
 
-              <Col md={6}>
+            {/* PAYMENT */}
+            <Row className="mb-2 mx-3">
+               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("paymentDetails")}</Form.Label>
                 <Form.Control as="textarea" rows={2} name="paymentDetails"
                   value={formData.paymentDetails} onChange={handleChange}
                   onBlur={() => validateField("paymentDetails", formData.paymentDetails)} />
               </Col>
-            </Row>
-
-            {/* DROP LOCATIONS & DETAILS */}
-            <Row className="mb-2 mx-3">
-              <Col md={6}>
+               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("details")}</Form.Label>
                 <Form.Control as="textarea" rows={2} name="details"
                   value={formData.details} onChange={handleChange}
                   onBlur={() => validateField("details", formData.details)} />
               </Col>
+            </Row>
 
-              <Col md={6}>
+            {/* DROP LOCATIONS & DETAILS */}
+            <Row className="mb-2 mx-3">
+             
+               <Col md={6}>
                 <KiduDropLocation values={formData.dropLocations} onChange={handleDropChange} />
                 {errors.dropLocations && <div className="text-danger small">{errors.dropLocations}</div>}
               </Col>
             </Row>
+
 
             {/* Reset + Update Buttons */}
             <div className="d-flex justify-content-end gap-2 mt-4 me-4">

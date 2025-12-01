@@ -18,26 +18,18 @@ const TripCreate: React.FC = () => {
   const fields = [
     { name: "customerName", rules: { required: true, type: "text" as const, label: "Customer Name" } },
     { name: "receivedVia", rules: { required: true, type: "select" as const, label: "Received Via" } },
-
     { name: "fromDate", rules: { required: true, type: "date" as const, label: "From Date" } },
     { name: "fromTime", rules: { required: true, type: "select" as const, label: "From Time" } },
     { name: "fromAmPm", rules: { required: true, type: "select" as const, label: "AM/PM" } },
-
     { name: "toDate", rules: { required: true, type: "date" as const, label: "To Date" } },
     { name: "toTime", rules: { required: true, type: "select" as const, label: "To Time" } },
     { name: "toAmPm", rules: { required: true, type: "select" as const, label: "AM/PM" } },
-
     { name: "pickupFrom", rules: { required: true, type: "text" as const, label: "Pickup From" } },
     { name: "driverName", rules: { required: true, type: "text" as const, label: "Driver Name" } },
-
     { name: "vehicleTakeOfTime", rules: { required: true, type: "text" as const, label: "Vehicle Take-Off Date" } },
     { name: "takeOffTime", rules: { required: true, type: "text" as const, label: "Time" } },
     { name: "takeOffAmPm", rules: { required: true, type: "text" as const, label: "AM/PM" } },
-
-    { name: "driverWaitingHours", rules: { required: true, type: "text" as const, label: "Driver waiting hours" } },
-
     { name: "dropLocations", rules: { required: true, type: "dropLocations" as const, label: "Drop Locations" } },
-
     { name: "paymentMode", rules: { required: true, type: "select" as const, label: "Payment Mode" } },
     { name: "paymentDetails", rules: { required: false, type: "text" as const, label: "Payment Details" } },
     { name: "details", rules: { required: false, type: "text" as const, label: "Trip Details" } }
@@ -53,7 +45,6 @@ const TripCreate: React.FC = () => {
 
   const [formData, setFormData] = useState(initialValues);
   const [errors, setErrors] = useState(initialErrors);
-
   const [bookingModes, setBookingModes] = useState<any[]>([]);
   const [customerId, setCustomerId] = useState<number>();
   const [driverId, setDriverId] = useState<number>();
@@ -385,18 +376,6 @@ const TripCreate: React.FC = () => {
                   </Col>
                 </Row>
               </Col>
-              {/* Driver waiting hours */}
-              {/* <Col md={6}>
-                <Form.Label className="mb-1 fw-medium">{getLabel("driverWaitingHours")}</Form.Label>
-                <Form.Control size="sm" type="text" name="driverWaitingHours"
-                  placeholder="Enter driver waiting hours" value={formData.driverWaitingHours}
-                  onChange={handleChange} onBlur={() => validateField("driverWaitingHours", formData.driverWaitingHours)} />
-                {errors.driverWaitingHours && <div className="text-danger small">{errors.driverWaitingHours}</div>}
-              </Col> */}
-            </Row>
-
-            {/* PAYMENT */}
-            <Row className="mb-2 mx-3">
               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("paymentMode")}</Form.Label>
                 <Form.Select size="sm" name="paymentMode" value={formData.paymentMode}
@@ -409,23 +388,32 @@ const TripCreate: React.FC = () => {
                 </Form.Select>
                 {errors.paymentMode && <div className="text-danger small">{errors.paymentMode}</div>}
               </Col>
+            </Row>
 
-              <Col md={6}>
+            {/* PAYMENT */}
+            <Row className="mb-2 mx-3">
+
+               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("paymentDetails")}</Form.Label>
                 <Form.Control as="textarea" rows={2} name="paymentDetails"
                   value={formData.paymentDetails} onChange={handleChange}
                   onBlur={() => validateField("paymentDetails", formData.paymentDetails)} />
               </Col>
-            </Row>
 
-            {/* DROP LOCATIONS & DETAILS */}
-            <Row className="mb-2 mx-3">
-              <Col md={6}>
+               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("details")}</Form.Label>
                 <Form.Control as="textarea" rows={2} name="details"
                   value={formData.details} onChange={handleChange}
                   onBlur={() => validateField("details", formData.details)} />
               </Col>
+
+             
+
+            </Row>
+
+            {/* DROP LOCATIONS & DETAILS */}
+            <Row className="mb-2 mx-3">
+             
 
               <Col md={6}>
                 <KiduDropLocation values={formData.dropLocations} onChange={handleDropChange} />

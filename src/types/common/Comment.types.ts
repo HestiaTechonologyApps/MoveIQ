@@ -2,6 +2,7 @@
 
 export interface Comment {
   commentId: number;
+  commentType:string;
   description: string;
   tableName: string;
   recordID: number;
@@ -24,6 +25,7 @@ export interface CommentResponse {
 
 export interface CreateCommentPayload {
   commentId?: number;
+  commentType:string;
   description: string;
   tableName: string;
   recordID: number;

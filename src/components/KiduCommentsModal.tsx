@@ -23,6 +23,7 @@ const KiduCommentModal: React.FC<KiduCommentModalProps> = ({
   recordId,
 }) => {
   const [description, setDescription] = useState("");
+  const [commentType, setcommentType] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSaveClick = async () => {
@@ -37,6 +38,7 @@ const KiduCommentModal: React.FC<KiduCommentModalProps> = ({
 
       const payload: CreateCommentPayload = {
         commentId: 0,
+        commentType: commentType,
         description: description.trim(),
         tableName: tableName,
         recordID: recordId,
@@ -51,6 +53,7 @@ const KiduCommentModal: React.FC<KiduCommentModalProps> = ({
       if (res.isSucess) {
         toast.success("Comment added successfully!");
         setDescription("");
+        setcommentType("");
         handleSuccess();
         handleClose();
       } else {
@@ -66,6 +69,7 @@ const KiduCommentModal: React.FC<KiduCommentModalProps> = ({
 
   const handleModalClose = () => {
     setDescription("");
+    setcommentType("");
     handleClose();
   };
 
@@ -89,6 +93,25 @@ const KiduCommentModal: React.FC<KiduCommentModalProps> = ({
           </div>
         ) : (
           <Form>
+            <Form.Group as={Row} className="align-items-start mb-3">
+              <Form.Label column sm={3} className="fw-semibold">
+                Type <span className="text-danger">*</span>
+              </Form.Label>
+              <Col sm={9}>
+                <Form.Select
+                  value={commentType}
+                  onChange={(e) => setcommentType(e.target.value)}
+                  className="shadow-sm"
+                >
+                  <option value="">Select Type</option>
+                  <option value="Suggestion">Suggestion</option>
+                  <option value="Feedback">Feedback</option>
+                  <option value="Complaint">Complaint</option>
+                  <option value="Appreciation">Appreciation</option>
+                </Form.Select>
+              </Col>
+            </Form.Group>
+
             <Form.Group as={Row} className="align-items-start">
               <Form.Label column sm={3} className="fw-semibold">
                 Comment <span className="text-danger">*</span>

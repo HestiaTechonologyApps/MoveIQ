@@ -154,8 +154,8 @@ const KiduCommentAccordion: React.FC<KiduCommentAccordionProps> = ({
                                                                 </strong> */}
                                                             </div>
                                                             <div className="p-3 rounded border" style={{backgroundColor: "#18575a18"}}>
-                                                                <p className="mb-0 fw-bold" style={{ whiteSpace: "pre-wrap" }}>
-                                                                    {comment.description}
+                                                                <p className="mb-0 fw-bold" style={{ whiteSpace: "pre-wrap" }}> <span className="fw-bolder text-dark" style={{fontSize:"15px"}}>
+                                                                    {comment.commentType} : </span>{comment.description}
                                                                 </p>
                                                             </div>
                                                         </div>
