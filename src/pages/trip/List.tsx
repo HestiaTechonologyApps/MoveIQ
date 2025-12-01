@@ -1,70 +1,77 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import TripService from "../../services/Trip.services";
-import KiduServerTable from "../../components/KiduTable";
-import KiduLoader from "../../components/KiduLoader";
+import KiduServerTable from "../../components/Trip/KiduServerTable";
 
 const columns = [
   { key: "tripCode", label: "Trip ID" },
-  { key: "vehicleTakeofTimeString", label: "Vehicle Take-Off Time" },
+  { key: "vehicleTakeOfTimeString", label: "Vehicle Take-off time" },
   { key: "fromDateString", label: "Departure Date" },
   { key: "customerName", label: "Customer Name" },
   { key: "recivedVia", label: "Received Via" },
   { key: "driverName", label: "Driver" },
   { key: "pickUpFrom", label: "Pickup From" },
-  { key: "status", label: "Status" }
+  { key: "tripStatus", label: "Status" }
 ];
 
 const TripList: React.FC = () => {
-  const [trips, setTrips] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const currentYear = new Date().getFullYear();
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      const res = await TripService.getAll();
-      console.log("Trip API Response:", res);
+  const fetchData = async ({
+    pageNumber,
+    pageSize,
+    searchTerm,
+  }: {
+    pageNumber: number;
+    pageSize: number;
+    searchTerm: string;
+  }) => {
+    const response = await TripService.getPaginatedTrips({
+      year: currentYear,
+      customerId: 0,
+      listType: "all",
+      filtertext: searchTerm || "",
+      pagesize: pageSize,
+      pagenumber: pageNumber,
+    });
+
+    console.log("API Response:", response);
+
+    if (response.isSucess && response.value) {
+      console.log("Data:", response.value.data);
       
-      if (res.isSucess && res.value) {
-        // Transform data to ensure consistent ID field
-        const transformedTrips = res.value.map(trip => ({
-          ...trip,
-          id: trip.tripOrderId
-        }));
-        console.log("Transformed trips:", transformedTrips);
-        setTrips(transformedTrips);
-        setError(null);
-      } else {
-        setError("Failed to fetch trips");
+      if (response.value.data.length > 0) {
+        console.log("First item fields:", Object.keys(response.value.data[0]));
       }
-    } catch (err) {
-      console.error("Error fetching trips:", err);
-      setError("An error occurred while fetching trips");
-    } finally {
-      setLoading(false);
+      
+      return {
+        data: response.value.data,
+        total: response.value.total,
+      };
+    } else {
+      throw new Error(response.error || "Failed to fetch trips");
     }
   };
-
-  // Load data only once when component mounts
-  useEffect(() => {
-    loadData();
-  }, []); // Empty dependency array - runs only once
-
-  if (loading) return <KiduLoader type="trips..." />;
 
   return (
     <KiduServerTable
       title="Total Trips"
       subtitle="List of all trips with quick edit & view actions"
       columns={columns}
-      data={trips}
+      idKey="tripOrderId"
       addButtonLabel="Add New Trip"
       addRoute="/dashboard/trip-create"
-      editRoute="/dashboard/trip-edit"
       viewRoute="/dashboard/trip-view"
-      idKey="id"
-      error={error}
-      onRetry={loadData}
+      editRoute="/dashboard/trip-edit"
+      showAddButton={true}
+      showExport={true}
+      showSearch={true}
+      showActions={true}
+      showTitle={true}
+      fetchData={fetchData}
+      rowsPerPage={10}
+      onRowClick={(trip) => navigate(`/dashboard/trip-view/${trip.tripOrderId}`)}
     />
   );
 };
