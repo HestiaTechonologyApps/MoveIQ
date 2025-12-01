@@ -24,6 +24,7 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
   // Updated columns to match the fields you want to display
   const columns = [
     { key: "tripCode", label: "Trip ID" },
+    { key: "vehicleTakeOfTimeString", label: "Vehicle Take-off time" },
     { key: "fromDateString", label: "Departure Date" },
     { key: "customerName", label: "Customer Name" },
     { key: "recivedVia", label: "Received Via" },

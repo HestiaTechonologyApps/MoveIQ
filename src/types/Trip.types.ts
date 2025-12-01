@@ -15,6 +15,8 @@ export interface Trip {
     toDate: string | null;
     toDateString: string | null;
     fromLocation: string;
+    vehicleTakeOfTime?:string | null;
+    vehicleTakeOfTimeString?:string | null;
     pickUpFrom?: string;
     toLocation1: string;
     toLocation2: string;

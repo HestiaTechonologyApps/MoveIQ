@@ -34,6 +34,12 @@ const TripEdit: React.FC = () => {
     { name: "toTime", rules: { required: true, type: "select" as const, label: "To Time" } },
     { name: "toAmPm", rules: { required: true, type: "select" as const, label: "AM/PM" } },
     { name: "pickupFrom", rules: { required: true, type: "text" as const, label: "Pickup From" } },
+    { name: "vehicleTakeOfTime", rules: { required: true, type: "text" as const, label: "Vehicle Take-Off Date" } },
+    { name: "takeOffTime", rules: { required: true, type: "text" as const, label: "Time" } },
+    { name: "takeOffAmPm", rules: { required: true, type: "text" as const, label: "AM/PM" } },
+
+    { name: "driverWaitingHours", rules: { required: true, type: "text" as const, label: "Driver waiting hours" } },
+
     { name: "driverName", rules: { required: true, type: "text" as const, label: "Driver Name" } },
     { name: "dropLocations", rules: { required: true, type: "dropLocations" as const, label: "Drop Locations" } },
     { name: "paymentMode", rules: { required: true, type: "select" as const, label: "Payment Mode" } },
@@ -122,6 +128,11 @@ const TripEdit: React.FC = () => {
           const toTimeStr = toDateTime ? `${toDateTime.getHours().toString().padStart(2, "0")}:${toDateTime.getMinutes().toString().padStart(2, "0")}` : "";
           const toParsed = convertFrom24(toTimeStr);
 
+          const vehicleTakeOfTime = trip.vehicleTakeOfTime ? trip.vehicleTakeOfTime.split("T")[0] : "";
+          const takeOffTime = trip.vehicleTakeOfTime ? new Date(trip.vehicleTakeOfTime) : null;
+          const toTimeString = takeOffTime ? `${takeOffTime.getHours().toString().padStart(2, "0")}:${takeOffTime.getMinutes().toString().padStart(2, "0")}` : "";
+          const takeoffParsed = convertFrom24(toTimeString);
+
           const loadedData = {
             tripCode: trip.tripCode || "",
             customerName: trip.customerName || "",
@@ -132,6 +143,9 @@ const TripEdit: React.FC = () => {
             toDate,
             toTime: toParsed.time,
             toAmPm: toParsed.ampm,
+            vehicleTakeOfTime,
+            takeOffTime:takeoffParsed.time,
+            takeOffAmPm:takeoffParsed.ampm,
             pickupFrom: trip.fromLocation || "",
             driverName: trip.driverName || "",
             dropLocations: drops.length > 0 ? drops : [""],
@@ -221,13 +235,13 @@ const TripEdit: React.FC = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-     // SIMPLE DATE VALIDATION
-  if (formData.fromDate && formData.toDate) {
-    if (new Date(formData.toDate) < new Date(formData.fromDate)) {
-      toast.error("To Date cannot be before From Date");
-      return;
+    // SIMPLE DATE VALIDATION
+    if (formData.fromDate && formData.toDate) {
+      if (new Date(formData.toDate) < new Date(formData.fromDate)) {
+        toast.error("To Date cannot be before From Date");
+        return;
+      }
     }
-  }
     if (!validateForm()) return;
     if (!customerId) {
       toast.error("Please select a customer");
@@ -254,6 +268,7 @@ const TripEdit: React.FC = () => {
         fromDateString: formData.fromDate,
         toDate: `${formData.toDate}T${convertTo24(formData.toTime, formData.toAmPm)}:00`,
         toDateString: formData.toDate,
+        vehicleTakeOfTime: `${formData.vehicleTakeOfTime}T${convertTo24(formData.takeOffTime, formData.takeOffAmPm)}:00`,
         fromLocation: formData.pickupFrom,
         toLocation1: drops[0] || "",
         toLocation2: drops[1] || "",
@@ -293,7 +308,7 @@ const TripEdit: React.FC = () => {
   return (
     <>
       <Card className="mx-3" style={{ maxWidth: "100%", fontSize: "0.85rem", marginTop: "50px", backgroundColor: "#f0f0f0ff" }}>
-        <Card.Header style={{ backgroundColor: "#18575A", color: "white" , height:"65px" }}>
+        <Card.Header style={{ backgroundColor: "#18575A", color: "white", height: "65px" }}>
           <div className="d-flex justify-content-between align-items-center">
             <div className="d-flex align-items-center">
               <Button size="sm" variant="link" className="me-2 mb-2" style={{ backgroundColor: "white", padding: "0.2rem 0.5rem", color: "#18575A" }} onClick={() => navigate(-1)}>
@@ -444,6 +459,47 @@ const TripEdit: React.FC = () => {
                 </InputGroup>
                 {errors.driverName && <div className="text-danger small">{errors.driverName}</div>}
               </Col>
+            </Row>
+
+            {/* Vehicle take off time */}
+            <Row className="mb-2 mx-3">
+              <Col md={6}>
+                <Form.Label className="mb-1 fw-medium">{getLabel("vehicleTakeOfTime")}</Form.Label>
+                <Row>
+                  <Col sm={5}>
+                    <Form.Control size="sm" type="date" name="vehicleTakeOfTime" value={formData.vehicleTakeOfTime}
+                      onChange={handleChange} onBlur={() => validateField("vehicleTakeOfTime", formData.vehicleTakeOfTime)} />
+                    {errors.vehicleTakeOfTime && <div className="text-danger small">{errors.vehicleTakeOfTime}</div>}
+                  </Col>
+
+                  <Col sm={5}>
+                    <Form.Select size="sm" name="takeOffTime" value={formData.takeOffTime}
+                      onChange={handleChange} onBlur={() => validateField("takeOffTime", formData.takeOffTime)}>
+                      <option value="">Select time</option>
+                      {timesList.map(t => <option key={t} value={t}>{t}</option>)}
+                    </Form.Select>
+                    {errors.takeOffTime && <div className="text-danger small">{errors.takeOffTime}</div>}
+                  </Col>
+
+                  <Col sm={2}>
+                    <Form.Select size="sm" name="takeOffAmPm" value={formData.takeOffAmPm}
+                      onChange={handleChange} onBlur={() => validateField("takeOffAmPm", formData.takeOffAmPm)}>
+                      <option value="">Select</option>
+                      <option>AM</option>
+                      <option>PM</option>
+                    </Form.Select>
+                    {errors.takeOffAmPm && <div className="text-danger small">{errors.takeOffAmPm}</div>}
+                  </Col>
+                </Row>
+              </Col>
+              {/* Driver waiting hours */}
+              {/* <Col md={6}>
+                <Form.Label className="mb-1 fw-medium">{getLabel("driverWaitingHours")}</Form.Label>
+                <Form.Control size="sm" type="text" name="driverWaitingHours"
+                  placeholder="Enter driver waiting hours" value={formData.driverWaitingHours}
+                  onChange={handleChange} onBlur={() => validateField("driverWaitingHours", formData.driverWaitingHours)} />
+                {errors.driverWaitingHours && <div className="text-danger small">{errors.driverWaitingHours}</div>}
+              </Col> */}
             </Row>
 
             {/* PAYMENT */}

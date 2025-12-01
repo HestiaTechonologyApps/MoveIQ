@@ -5,6 +5,7 @@ import KiduLoader from "../../components/KiduLoader";
 
 const columns = [
   { key: "tripCode", label: "Trip ID" },
+  { key: "vehicleTakeofTimeString", label: "Vehicle Take-Off Time" },
   { key: "fromDateString", label: "Departure Date" },
   { key: "customerName", label: "Customer Name" },
   { key: "recivedVia", label: "Received Via" },
