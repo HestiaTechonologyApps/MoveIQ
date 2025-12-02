@@ -18,6 +18,7 @@ import KiduKilometerAccordion from "../../components/KiduKilometerAccordion";
 import TripStatusBadge from "./TripStatusBadge";
 import TripActionPanel from "./TripActionPanel";
 import KiduCommentAccordion from "../../components/KiduCommentAccordion";
+import CustomerDepartmentService from "../../services/CustomerDepartment.services";
 
 const TripEdit: React.FC = () => {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ const TripEdit: React.FC = () => {
 
   const fields = [
     { name: "customerName", rules: { required: true, type: "text" as const, label: "Customer Name" } },
+    { name: "departmentName", rules: { required: true, type: "text" as const, label: "Customer Department" } },
     { name: "receivedVia", rules: { required: true, type: "select" as const, label: "Received Via" } },
     { name: "fromDate", rules: { required: true, type: "date" as const, label: "From Date" } },
     { name: "fromTime", rules: { required: true, type: "select" as const, label: "From Time" } },
@@ -56,8 +58,8 @@ const TripEdit: React.FC = () => {
   const [errors, setErrors] = useState(initialErrors);
   const [originalData, setOriginalData] = useState(initialValues);
   const [tripStatus, setTripStatus] = useState("Scheduled");
-
   const [bookingModes, setBookingModes] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<any[]>([]);
   const [customerId, setCustomerId] = useState<number>();
   const [driverId, setDriverId] = useState<number>();
   const [showCustomerPopup, setShowCustomerPopup] = useState(false);
@@ -148,7 +150,8 @@ const TripEdit: React.FC = () => {
             dropLocations: drops.length > 0 ? drops : [""],
             paymentMode: trip.paymentMode || "",
             paymentDetails: trip.paymentDetails || "",
-            details: trip.tripDetails || ""
+            details: trip.tripDetails || "",
+            departmentName: trip.departmentName,
           };
 
           setFormData(loadedData);
@@ -180,7 +183,18 @@ const TripEdit: React.FC = () => {
         toast.error("Failed to load booking modes");
       }
     };
+    const loadDepartments = async () => {
+      try {
+        const res = await CustomerDepartmentService.getAll(); // <-- your API
+        console.log(res);
+
+        if (res.isSucess) setDepartments(res.value);
+      } catch {
+        toast.error("Failed to load departments");
+      }
+    };
     loadModes();
+    loadDepartments();
   }, []);
 
   const handleChange = (e: any) => {
@@ -282,7 +296,8 @@ const TripEdit: React.FC = () => {
         paymentDetails: formData.paymentDetails || "",
         customerName: formData.customerName,
         driverName: formData.driverName,
-        tripModeName: formData.tripModeName
+        tripModeName: formData.tripModeName,
+        departmentName: formData.departmentName,
       };
 
       const res = await TripService.update(Number(tripId), payload);
@@ -352,8 +367,41 @@ const TripEdit: React.FC = () => {
                 </InputGroup>
                 {errors.customerName && <div className="text-danger small">{errors.customerName}</div>}
               </Col>
+              {/* Department */}
+              <Col md={3}>
+                <Form.Label className="mb-1 fw-medium">{getLabel("departmentName")}</Form.Label>
+                <Form.Select
+                  size="sm"
+                  name="departmentName"
+                  value={formData.departmentName}
+                  onChange={(e) => {
+                    const selectedName = e.target.value;
 
-              <Col md={6}>
+                    setFormData((prev: any) => ({
+                      ...prev,
+                      departmentName: selectedName   // store NAME only
+                    }));
+
+                    if (errors.departmentName)
+                      setErrors((p: any) => ({ ...p, departmentName: "" }));
+                  }}
+                  onBlur={() => validateField("departmentName", formData.departmentName)}
+                >
+                  <option value="">Select Department</option>
+
+                  {departments.map(d => (
+                    <option key={d.departmentId} value={d.departmentName}>
+                      {d.departmentName}
+                    </option>
+                  ))}
+
+                </Form.Select>
+
+                {errors.departmentName && <div className="text-danger small">{errors.departmentName}</div>}
+              </Col>
+
+              {/* Received via */}
+              <Col md={3}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("receivedVia")}</Form.Label>
                 <Form.Select size="sm" name="receivedVia" value={formData.receivedVia}
                   onChange={handleChange} onBlur={() => validateField("receivedVia", formData.receivedVia)}>
@@ -489,7 +537,7 @@ const TripEdit: React.FC = () => {
                   </Col>
                 </Row>
               </Col>
-               <Col md={6}>
+              <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("paymentMode")}</Form.Label>
                 <Form.Select size="sm" name="paymentMode" value={formData.paymentMode}
                   onChange={handleChange} onBlur={() => validateField("paymentMode", formData.paymentMode)}>
@@ -505,13 +553,13 @@ const TripEdit: React.FC = () => {
 
             {/* PAYMENT */}
             <Row className="mb-2 mx-3">
-               <Col md={6}>
+              <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("paymentDetails")}</Form.Label>
                 <Form.Control as="textarea" rows={2} name="paymentDetails"
                   value={formData.paymentDetails} onChange={handleChange}
                   onBlur={() => validateField("paymentDetails", formData.paymentDetails)} />
               </Col>
-               <Col md={6}>
+              <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("details")}</Form.Label>
                 <Form.Control as="textarea" rows={2} name="details"
                   value={formData.details} onChange={handleChange}
@@ -521,8 +569,8 @@ const TripEdit: React.FC = () => {
 
             {/* DROP LOCATIONS & DETAILS */}
             <Row className="mb-2 mx-3">
-             
-               <Col md={6}>
+
+              <Col md={6}>
                 <KiduDropLocation values={formData.dropLocations} onChange={handleDropChange} />
                 {errors.dropLocations && <div className="text-danger small">{errors.dropLocations}</div>}
               </Col>
@@ -559,7 +607,7 @@ const TripEdit: React.FC = () => {
                 <KiduKilometerAccordion
                   key={`km-${refreshKey}`}
                   tripId={recordId}
-                  // driverId={driverId}
+                // driverId={driverId}
                 />
               </Col>
             </Row>

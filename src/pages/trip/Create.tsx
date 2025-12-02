@@ -10,6 +10,7 @@ import KiduReset from "../../components/ReuseButtons/KiduReset";
 import KiduDropLocation from "../../components/Trip/KiduDropLocation";
 import CustomerPopup from "../customer/CustomerPopup";
 import DriverPopup from "../driver/DriverPopup";
+import CustomerDepartmentService from "../../services/CustomerDepartment.services";
 
 
 const TripCreate: React.FC = () => {
@@ -87,7 +88,9 @@ const TripCreate: React.FC = () => {
 
     const loadDepartments = async () => {
       try {
-        const res = await TripService.getAll(); // <-- your API
+        const res = await CustomerDepartmentService.getAll(); // <-- your API
+        console.log(res);
+
         if (res.isSucess) setDepartments(res.value);
       } catch {
         toast.error("Failed to load departments");
@@ -204,6 +207,7 @@ const TripCreate: React.FC = () => {
         customerName: formData.customerName,
         driverName: formData.driverName,
         tripModeName: formData.tripModeName,
+        departmentName: formData.departmentName || "NA",
       };
 
       const res = await TripService.create(payload);
@@ -253,7 +257,7 @@ const TripCreate: React.FC = () => {
                 {errors.customerName && <div className="text-danger small">{errors.customerName}</div>}
               </Col>
 
-           
+              {/* Department */}
               <Col md={3}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("departmentName")}</Form.Label>
                 <Form.Select
@@ -261,26 +265,32 @@ const TripCreate: React.FC = () => {
                   name="departmentName"
                   value={formData.departmentName}
                   onChange={(e) => {
-                    const selected = departments.find(d => d.departmentId == e.target.value);
+                    const selectedName = e.target.value;
+
                     setFormData((prev: any) => ({
                       ...prev,
-                      departmentName: selected ? selected.departmentName : ""    // 👈 send NAME, not ID
+                      departmentName: selectedName   // store NAME only
                     }));
-                    if (errors.departmentName) setErrors((p: any) => ({ ...p, departmentName: "" }));
+
+                    if (errors.departmentName)
+                      setErrors((p: any) => ({ ...p, departmentName: "" }));
                   }}
                   onBlur={() => validateField("departmentName", formData.departmentName)}
                 >
                   <option value="">Select Department</option>
+
                   {departments.map(d => (
-                    <option key={d.departmentId} value={d.departmentId}>
+                    <option key={d.departmentId} value={d.departmentName}>
                       {d.departmentName}
                     </option>
                   ))}
+
                 </Form.Select>
+
                 {errors.departmentName && <div className="text-danger small">{errors.departmentName}</div>}
               </Col>
-                {/* Received via */}
-               <Col md={3}>
+              {/* Received via */}
+              <Col md={3}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("receivedVia")}</Form.Label>
                 <Form.Select size="sm" name="receivedVia" value={formData.receivedVia}
                   onChange={handleChange} onBlur={() => validateField("receivedVia", formData.receivedVia)}>
@@ -365,7 +375,7 @@ const TripCreate: React.FC = () => {
             <Row className="mb-2 mx-3">
               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("pickupFrom")}</Form.Label>
-                <Form.Control size="sm" type="text" name="pickupFrom" className="p-2"
+                <Form.Control size="sm" type="text" name="pickupFrom"
                   placeholder="Enter pickup location" value={formData.pickupFrom}
                   onChange={handleChange} onBlur={() => validateField("pickupFrom", formData.pickupFrom)} />
                 {errors.pickupFrom && <div className="text-danger small">{errors.pickupFrom}</div>}

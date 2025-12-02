@@ -166,6 +166,10 @@ const TripView: React.FC = () => {
               <div className="fw-semibold" style={{ fontSize: "1rem" }}>Customer Name</div>
               <div className="text-muted" style={{ fontSize: "0.85rem" }}>{data.customerName}</div>
             </Col>
+             <Col xs={12} md={4}>
+              <div className="fw-semibold" style={{ fontSize: "1rem" }}>Customer Department</div>
+              <div className="text-muted" style={{ fontSize: "0.85rem" }}>{data.departmentName}</div>
+            </Col>
 
             <Col xs={12} md={4}>
               <div className="fw-semibold" style={{ fontSize: "1rem" }}>Driver</div>
@@ -231,7 +235,7 @@ const TripView: React.FC = () => {
             )}
 
             {data.tripDetails && data.tripDetails.trim() !== "" && (
-              <Col xs={12} md={4} className="mt-3">
+              <Col xs={12} md={5} className="mt-3">
                 <div className="fw-semibold mb-1" style={{ fontSize: "1rem" }}>Other Trip Details</div>
                 <div className="text-muted" style={{ fontSize: "0.85rem", backgroundColor: "transparent" }}>
                   {data.tripDetails}

@@ -124,7 +124,7 @@ const KiduKmAccordion = forwardRef<KiduKilometerAccordionRef, KiduKilometerAccor
                   No kilometer records found for this trip. Click "Add Kilometer" to create one.
                 </Alert>
               ) : (
-                <Table bordered hover responsive>
+                <Table bordered hover responsive size="sm">
                   <thead style={{ backgroundColor: "#18575A", color: "white" }}>
                     <tr className="head-font text-center">
                       <th className="bg-secondary text-white">Sl No</th>
