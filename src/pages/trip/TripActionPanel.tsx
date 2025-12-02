@@ -1,25 +1,11 @@
-import {
-    Button,
-    Dropdown,
-    Modal,
-    Form,
-    Row,
-    Col,
-    ButtonGroup,
-} from "react-bootstrap";
-import {
-    FaFileInvoice,
-    FaCheckCircle,
-    FaTimesCircle,
-    FaMoneyBillWave,
-} from "react-icons/fa";
+import { Button, Dropdown, Modal, Form, Row, Col, ButtonGroup } from "react-bootstrap";
+import { FaFileInvoice, FaCheckCircle, FaTimesCircle, FaMoneyBillWave } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { FaCar, FaFilePdf } from "react-icons/fa6";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import TripKilometerService from "../../services/TripKilometer.services";
 import ExpenseMasterService from "../../services/Expense.services";
 import TripService from "../../services/Trip.services";
 import InvoiceMasterService from "../../services/Invoice.services";
@@ -35,10 +21,10 @@ interface TripActionPanelProps {
         remarks?: string) => void;
     currentStatus?: string;
     onKmUpdate?: () => void; // Add callback to refresh KM data
-    onPaymentUpdate?: () => void; 
+    onPaymentUpdate?: () => void;
 }
 
-const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate, currentStatus, onKmUpdate , onPaymentUpdate,}) => {
+const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate, currentStatus, onKmUpdate, onPaymentUpdate, }) => {
 
     const navigate = useNavigate();
     const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -48,61 +34,24 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
     const [confirmType, setConfirmType] = useState<string>("");
     console.log(selectedAction);
 
-
     // Invoice form state
     const [invoiceNum, setInvoiceNum] = useState("");
-
     const [financialYearId, setFinancialYearId] = useState<number>(1);
-
     const [companyId, setCompanyId] = useState<number>(1);
-
     const [totalAmount, setTotalAmount] = useState<number>(trip?.tripAmount || 0);
     const [createdOn, setCreatedOn] = useState<string>(
         new Date().toISOString().slice(0, 10)
     );
     const [showInvoiceForm, setShowInvoiceForm] = useState(false);
     const [invoiceData, setInvoiceData] = useState<any>(null);
-
     const [showTripSheet, setShowTripSheet] = useState(false);
     console.log(selectedAction);
-
-
     const [showKmModal, setShowKmModal] = useState(false); //  New state for KM modal
 
-    const handleKmSave = async (formData: any) => {
-        try {
-            const payload = {
-                tripKiloMeterId: 0,
-                tripOrderId: trip?.tripOrderId,
-                driverId: trip?.driverId || 0,
-                vehicleId: formData.vehicleId,
-                tripStartTime: formData.timeIn,
-                tripEndTime: formData.timeOut,
-                tripStartReading: formData.blackTopKm,
-                tripEndReading: formData.gradedKm,
-                totalKM: formData.totalKM,
-                waitingHours:formData.waitingHours,
-                createdOn: new Date().toISOString(),
-            };
-
-            console.log("Creating kilometer from TripActionPanel:", payload);
-
-            const response = await TripKilometerService.create(payload);
-
-            if (response.isSucess) {
-                // toast.success("Kilometer details saved successfully!");
-                setShowKmModal(false);
-
-                // Trigger refresh in the accordion
-                if (onKmUpdate) {
-                    onKmUpdate();
-                }
-            } else {
-                toast.error(response.customMessage || "Failed to save kilometer details");
-            }
-        } catch (error) {
-            console.error("Error saving kilometer details:", error);
-            toast.error("Failed to save kilometer details");
+    const handleKmSuccess = () => {
+        // Trigger refresh in the accordion
+        if (onKmUpdate) {
+            onKmUpdate();
         }
     };
 
@@ -152,13 +101,6 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
             setCompanyId(1);
         }
     }, [trip]);
-    useEffect(() => {
-        if (trip) {
-            setInvoiceNum(`INV-${trip.tripOrderId}`);
-            setFinancialYearId(2025);
-            setCompanyId(1);
-        }
-    }, [trip]);
 
     // Handle Dropdown Action
     const handleToolbarAction = (action: string) => {
@@ -176,7 +118,6 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
             handleGenerateTripSheet();
         }
     };
-
 
     const formatDateForDisplay = (dateString: string): string => {
         const date = new Date(dateString);
@@ -196,25 +137,20 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
         try {
             const updatedStatus = confirmType === "Trip Cancel" ? "Canceled" : "Completed";
 
-            //const fromDateFormatted = formatDateForAPI(trip.fromDate);
-            //const toDateFormatted = formatDateForAPI(trip.toDate);
-             const payload ={
-                 tripOrderId: trip.tripOrderId,
-                  tripStatus: updatedStatus,
-                   remark: remarks
+            const payload = {
+                tripOrderId: trip.tripOrderId,
+                tripStatus: updatedStatus,
+                remark: remarks
                     ? `${trip.tripDetails || trip.details || ""}\n\n[${new Date().toLocaleString()}] Status Update (${updatedStatus}): ${remarks}`.trim()
                     : trip.tripDetails || trip.details || "",
-             }
-           
+            }
 
             console.log("Payload being sent:", payload);
 
-            const response = await TripService.updatestatus( payload);
+            const response = await TripService.updatestatus(payload);
             console.log("Update response:", response);
-
             if (response.isSucess) {
                 toast.success(`Trip ${updatedStatus} successfully!`);
-
                 // instantly update UI
                 // eslint-disable-next-line react-hooks/immutability
                 trip.tripStatus = updatedStatus;
@@ -233,7 +169,6 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
         }
     };
 
-
     const handleInvoiceSubmit = async () => {
         try {
             const formattedDate = new Date(createdOn).toISOString();
@@ -250,7 +185,6 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
 
             const response = await InvoiceMasterService.create(payload);
             console.log("Invoice response:", response);
-
             if (response.isSucess) {
                 toast.success("Invoice created successfully!");
                 setInvoiceData({
@@ -274,7 +208,6 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
         try {
             // Show the trip sheet temporarily
             setShowTripSheet(true);
-
             // Wait for the component to render
             await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -288,7 +221,6 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
             toast.success("Generating PDF...");
 
             const element = tripSheetRef.current;
-
             // Generate canvas with better settings
             const canvas = await html2canvas(element, {
                 scale: 2,
@@ -303,20 +235,14 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
             // Get image dimensions
             const imgWidth = 210; // A4 width in mm
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
             // Create PDF
             const pdf = new jsPDF("p", "mm", "a4");
-
             // Convert canvas to JPEG instead of PNG (more reliable)
             const imgData = canvas.toDataURL("image/jpeg", 1.0);
-
             pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
-
             // Download the PDF
             pdf.save(`TripSheet_${trip?.tripOrderId || "Trip"}.pdf`);
-
             toast.success("PDF generated successfully!");
-
             // Hide the trip sheet after generation
             setShowTripSheet(false);
         } catch (error) {
@@ -325,8 +251,6 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
             setShowTripSheet(false);
         }
     };
-
-
 
     return (
         <>
@@ -391,19 +315,11 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
                             <FaMoneyBillWave className="me-2 text-warning" /> Payment Details
                         </Dropdown.Item>
 
-                        <Dropdown.Item onClick={() => handleToolbarAction("Generate Invoice")}
-                        // disabled={
-                        //     currentStatus === "Scheduled"
-                        // }
-                        >
+                        <Dropdown.Item onClick={() => handleToolbarAction("Generate Invoice")}>
                             <FaFileInvoice className="me-2 text-success" /> Generate Invoice
                         </Dropdown.Item>
 
-                        <Dropdown.Item onClick={() => handleToolbarAction("Generate Trip Sheet")}
-                        // disabled={
-                        //     currentStatus === "Scheduled"
-                        // }
-                        >
+                        <Dropdown.Item onClick={() => handleToolbarAction("Generate Trip Sheet")}>
                             <FaFilePdf className="me-2 text-danger" /> Generate Trip Sheet
                         </Dropdown.Item>
                     </Dropdown.Menu>
@@ -413,12 +329,11 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
             <KmModal
                 show={showKmModal}
                 onHide={() => setShowKmModal(false)}
-                onSave={handleKmSave}
+                onSuccess={handleKmSuccess}
                 tripId={trip?.tripOrderId}
-                driverId={trip?.driverId}
-                editData={null}
+                editId={null}
             />
-   
+
             <ConfirmCancelPopup
                 show={showCancelPopup}
                 handleClose={() => setShowCancelPopup(false)}
@@ -436,7 +351,6 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
                 editData={null}
             />
 
-
             {/* Invoice Details form modal */}
             <Modal
                 show={showInvoiceForm}
@@ -452,11 +366,7 @@ const TripActionPanel: React.FC<TripActionPanelProps> = ({ trip, onStatusUpdate,
                 </Modal.Header>
                 <Modal.Body style={{ fontFamily: "Urbanist" }}>
                     <Form>
-                 
-
                         <Row>
-                            
-
                             <Col md={12}>
                                 <Form.Group className="mb-3">
                                     <Form.Label>Total Amount</Form.Label>

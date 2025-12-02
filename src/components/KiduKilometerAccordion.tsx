@@ -8,7 +8,6 @@ import KmModal from "../pages/trip/ActionPanel/KiloMeterModal";
 
 interface KiduKilometerAccordionProps {
   tripId: number;
-  driverId?: number;
 }
 
 export interface KiduKilometerAccordionRef {
@@ -16,19 +15,19 @@ export interface KiduKilometerAccordionRef {
 }
 
 const KiduKmAccordion = forwardRef<KiduKilometerAccordionRef, KiduKilometerAccordionProps>(
-  ({ tripId, driverId }, ref) => {
+  ({ tripId }, ref) => {
 
     const [kilometers, setKilometers] = useState<TripKilometer[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
-    const [editData, setEditData] = useState<TripKilometer | null>(null);
+    const [editId, setEditId] = useState<number | null>(null);
     const [deleteId, setDeleteId] = useState<number | null>(null);
     const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
       if (tripId) fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tripId]);
 
     const fetchData = async () => {
@@ -38,9 +37,8 @@ const KiduKmAccordion = forwardRef<KiduKilometerAccordionRef, KiduKilometerAccor
 
         const response = await TripKilometerService.getByTripId(tripId);
         console.log(response);
-        
-        if (response.isSucess && Array.isArray(response.value)) {
-          setKilometers(response.value.filter(k => k.tripOrderId === tripId));
+        if (response.isSucess) {
+          setKilometers(response.value);
         } else {
           setKilometers([]);
         }
@@ -53,40 +51,23 @@ const KiduKmAccordion = forwardRef<KiduKilometerAccordionRef, KiduKilometerAccor
 
     useImperativeHandle(ref, () => ({ refreshData: fetchData }));
 
-    const handleSave = async (formData: any) => {
-      try {
-        const payload = {
-          tripKiloMeterId: editData?.tripKiloMeterId || 0,
-          tripOrderId: tripId,
-          driverId: driverId || 0,
-          vehicleId: formData.vehicleId,
-          tripStartTime: formData.timeIn,
-          tripEndTime: formData.timeOut,
-          tripStartReading: formData.blackTopKm,
-          tripEndReading: formData.gradedKm,
-          totalKM: formData.totalKM,
-          waitingHours:formData.waitingHours,
-          createdOn: new Date().toISOString(),
-        };
+    const handleAddClick = () => {
+      setEditId(null);
+      setShowModal(true);
+    };
 
-        const fn = editData
-          ? () => TripKilometerService.update(editData.tripKiloMeterId, payload)
-          : () => TripKilometerService.create(payload);
+    const handleEditClick = (id: number) => {
+      setEditId(id);
+      setShowModal(true);
+    };
 
-        const res = await fn();
-        console.log(res);
-        
-        if (!res.isSucess) return toast.error(res.customMessage || "Failed to save kilometer details");
+    const handleModalClose = () => {
+      setShowModal(false);
+      setEditId(null);
+    };
 
-        if (editData) toast.success("Trip kilometer updated successfully!");
-
-        setShowModal(false);
-        setEditData(null);
-        await fetchData();
-
-      } catch {
-        toast.error("Failed to save kilometer details");
-      }
+    const handleSuccess = () => {
+      fetchData();
     };
 
     const handleDelete = async () => {
@@ -126,7 +107,7 @@ const KiduKmAccordion = forwardRef<KiduKilometerAccordionRef, KiduKilometerAccor
                   size="sm"
                   className="head-font fw-bold"
                   style={{ backgroundColor: "#18575A", border: "none" }}
-                  onClick={() => setShowModal(true)}
+                  onClick={handleAddClick}
                 >
                   <Plus size={16} className="me-1" /> Add Kilometer
                 </Button>
@@ -149,7 +130,8 @@ const KiduKmAccordion = forwardRef<KiduKilometerAccordionRef, KiduKilometerAccor
                       <th className="bg-secondary text-white">Sl No</th>
                       <th className="bg-secondary text-white">K.M Id</th>
                       <th className="bg-secondary text-white">Vehicle</th>
-                       <th className="bg-secondary text-white">Waiting Hours</th>
+                      <th className="bg-secondary text-white">Driver</th>
+                      <th className="bg-secondary text-white">Waiting Hours</th>
                       <th className="bg-secondary text-white">Time In</th>
                       <th className="bg-secondary text-white">Time Out</th>
                       <th className="bg-secondary text-white">Black Top KM</th>
@@ -160,38 +142,45 @@ const KiduKmAccordion = forwardRef<KiduKilometerAccordionRef, KiduKilometerAccor
                   </thead>
 
                   <tbody>
-                    {kilometers.map((k, i) => (
-                      <tr key={k.tripKiloMeterId} className="head-font text-center">
-                        <td>{i + 1}</td>
-                        <td>{k.tripKiloMeterId}</td>
-                        <td>{k.vehicleName}</td>
-                         <td>{k.waitingHours}</td>
-                        <td>{k.tripStartTimeString}</td>
-                        <td>{k.tripEndingTimeString}</td>
-                        <td>{k.tripStartReading}</td>
-                        <td>{k.tripEndReading}</td>
-                        <td className="fw-bold">{k.totalKM}</td>
-                        <td>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="me-2"
-                            style={{ borderColor: "#18575A" }}
-                            onClick={() => { setEditData(k); setShowModal(true); }}
-                          >
-                            <Pencil size={14} color="#18575A" />
-                          </Button>
+                    {kilometers.map((k, i) => {
+                      const uniqueKey = k.tripKiloMeterId > 0 
+                        ? k.tripKiloMeterId 
+                        : `${k.tripOrderId}-${k.vehicleId}-${i}`;
+                      
+                      return (
+                        <tr key={uniqueKey} className="head-font text-center">
+                          <td>{i + 1}</td>
+                          <td>{k.tripKiloMeterId}</td>
+                          <td>{k.vehicleName}</td>
+                          <td>{k.driverName}</td>
+                          <td>{k.waitingHours}</td>
+                          <td>{k.tripStartTimeString}</td>
+                          <td>{k.tripEndingTimeString}</td>
+                          <td>{k.tripStartReading}</td>
+                          <td>{k.tripEndReading}</td>
+                          <td className="fw-bold">{k.totalKM}</td>
+                          <td>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="me-2"
+                              style={{ borderColor: "#18575A" }}
+                              onClick={() => handleEditClick(k.tripKiloMeterId)}
+                            >
+                              <Pencil size={14} color="#18575A" />
+                            </Button>
 
-                          <Button
-                            size="sm"
-                            variant="outline-danger"
-                            onClick={() => setDeleteId(k.tripKiloMeterId)}
-                          >
-                            <Trash2 size={14} />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
+                            <Button
+                              size="sm"
+                              variant="outline-danger"
+                              onClick={() => setDeleteId(k.tripKiloMeterId)}
+                            >
+                              <Trash2 size={14} />
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </Table>
               )}
@@ -201,20 +190,10 @@ const KiduKmAccordion = forwardRef<KiduKilometerAccordionRef, KiduKilometerAccor
 
         <KmModal
           show={showModal}
-          onHide={() => { setShowModal(false); setEditData(null); }}
-          onSave={handleSave}
+          onHide={handleModalClose}
+          onSuccess={handleSuccess}
           tripId={tripId}
-          driverId={driverId}
-          editData={editData ? {
-            tripKiloMeterId: editData.tripKiloMeterId,
-            vehicleId: editData.vehicleId,
-            tripStartTimeString: editData.tripStartTimeString,
-            tripEndingTimeString: editData.tripEndingTimeString,
-            tripStartReading: editData.tripStartReading,
-            tripEndReading: editData.tripEndReading,
-            vehicleName:editData.vehicleName,
-            waitingHours:editData.waitingHours
-          } : null}
+          editId={editId}
         />
 
         <Modal show={!!deleteId} onHide={() => setDeleteId(null)} centered>

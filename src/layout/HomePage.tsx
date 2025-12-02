@@ -38,7 +38,8 @@ const HomePage: React.FC = () => {
       try {
         setLoading(true);
         const response = await TripService.getTripDashboard(selectedYear);
-
+        console.log(response);
+        
         if (response?.isSuccess && response?.value) {
           setCards(response.value);
         } else {

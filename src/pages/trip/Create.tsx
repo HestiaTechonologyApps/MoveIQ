@@ -17,6 +17,7 @@ const TripCreate: React.FC = () => {
 
   const fields = [
     { name: "customerName", rules: { required: true, type: "text" as const, label: "Customer Name" } },
+    { name: "departmentName", rules: { required: true, type: "text" as const, label: "Customer Department" } },
     { name: "receivedVia", rules: { required: true, type: "select" as const, label: "Received Via" } },
     { name: "fromDate", rules: { required: true, type: "date" as const, label: "From Date" } },
     { name: "fromTime", rules: { required: true, type: "select" as const, label: "From Time" } },
@@ -46,6 +47,7 @@ const TripCreate: React.FC = () => {
   const [formData, setFormData] = useState(initialValues);
   const [errors, setErrors] = useState(initialErrors);
   const [bookingModes, setBookingModes] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<any[]>([]);
   const [customerId, setCustomerId] = useState<number>();
   const [driverId, setDriverId] = useState<number>();
   const [showCustomerPopup, setShowCustomerPopup] = useState(false);
@@ -82,7 +84,17 @@ const TripCreate: React.FC = () => {
         toast.error("Failed to load booking modes");
       }
     };
+
+    const loadDepartments = async () => {
+      try {
+        const res = await TripService.getAll(); // <-- your API
+        if (res.isSucess) setDepartments(res.value);
+      } catch {
+        toast.error("Failed to load departments");
+      }
+    };
     loadModes();
+    loadDepartments();
   }, []);
 
   const handleChange = (e: any) => {
@@ -241,7 +253,34 @@ const TripCreate: React.FC = () => {
                 {errors.customerName && <div className="text-danger small">{errors.customerName}</div>}
               </Col>
 
-              <Col md={6}>
+           
+              <Col md={3}>
+                <Form.Label className="mb-1 fw-medium">{getLabel("departmentName")}</Form.Label>
+                <Form.Select
+                  size="sm"
+                  name="departmentName"
+                  value={formData.departmentName}
+                  onChange={(e) => {
+                    const selected = departments.find(d => d.departmentId == e.target.value);
+                    setFormData((prev: any) => ({
+                      ...prev,
+                      departmentName: selected ? selected.departmentName : ""    // 👈 send NAME, not ID
+                    }));
+                    if (errors.departmentName) setErrors((p: any) => ({ ...p, departmentName: "" }));
+                  }}
+                  onBlur={() => validateField("departmentName", formData.departmentName)}
+                >
+                  <option value="">Select Department</option>
+                  {departments.map(d => (
+                    <option key={d.departmentId} value={d.departmentId}>
+                      {d.departmentName}
+                    </option>
+                  ))}
+                </Form.Select>
+                {errors.departmentName && <div className="text-danger small">{errors.departmentName}</div>}
+              </Col>
+                {/* Received via */}
+               <Col md={3}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("receivedVia")}</Form.Label>
                 <Form.Select size="sm" name="receivedVia" value={formData.receivedVia}
                   onChange={handleChange} onBlur={() => validateField("receivedVia", formData.receivedVia)}>
@@ -393,27 +432,27 @@ const TripCreate: React.FC = () => {
             {/* PAYMENT */}
             <Row className="mb-2 mx-3">
 
-               <Col md={6}>
+              <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("paymentDetails")}</Form.Label>
                 <Form.Control as="textarea" rows={2} name="paymentDetails"
                   value={formData.paymentDetails} onChange={handleChange}
                   onBlur={() => validateField("paymentDetails", formData.paymentDetails)} />
               </Col>
 
-               <Col md={6}>
+              <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("details")}</Form.Label>
                 <Form.Control as="textarea" rows={2} name="details"
                   value={formData.details} onChange={handleChange}
                   onBlur={() => validateField("details", formData.details)} />
               </Col>
 
-             
+
 
             </Row>
 
             {/* DROP LOCATIONS & DETAILS */}
             <Row className="mb-2 mx-3">
-             
+
 
               <Col md={6}>
                 <KiduDropLocation values={formData.dropLocations} onChange={handleDropChange} />

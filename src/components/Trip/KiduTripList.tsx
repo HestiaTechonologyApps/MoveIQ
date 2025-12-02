@@ -7,7 +7,7 @@ interface KiduServerTripListProps {
   title: string;
   subtitle?: string;
   fetchMode: "all" | "today" | "status";
-  status?: "Scheduled" | "Completed" | "Canceled" | "Ongoing" | "Upcoming";
+  status?: "Scheduled" | "Completed" | "Canceled" | "ongoing" | "upcoming";
   showAddButton?: boolean;
 }
 
@@ -50,7 +50,7 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
     } else if (fetchMode === "today") {
       listType = "today";
     } else if (fetchMode === "status" && status) {
-      listType = status; // "Scheduled", "Completed", or "Canceled"
+      listType = status; // "Scheduled", "Completed", "Canceled" , ongoing , upcoming
     }
 
     const response = await TripService.getPaginatedTrips({

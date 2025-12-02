@@ -257,7 +257,7 @@ const TripView: React.FC = () => {
           key={`km-${refreshKey}`}
           ref={kmAccordionRef}
           tripId={Number(data.tripOrderId)}
-          driverId={data.driverId}
+         // driverId={data.driverId}
         />
         {/* Attachments + Audits */}
         <Attachments tableName="TRIPORDER" recordId={data.tripOrderId} />

@@ -26,6 +26,8 @@ import AllTrips from './pages/trip/TripStatus/AllTrips';
 import ScheduledTrips from './pages/trip/TripStatus/Scheduled';
 import CompletedTrips from './pages/trip/TripStatus/CompletedTrips';
 import CancelledTrips from './pages/trip/TripStatus/CancelledTrips';
+import UpcomingTrips from './pages/trip/TripStatus/UpcomingTrips';
+import OngoingTrips from './pages/trip/TripStatus/OngoingTrips';
 import TodaysTrip from './pages/trip/TripStatus/TodayTrips';
 
 //Customer
@@ -108,6 +110,8 @@ function App() {
           <Route path="scheduled" element={<ScheduledTrips />} />
           <Route path="completed" element={<CompletedTrips />} />
           <Route path="Cancelled" element={<CancelledTrips />} />
+          <Route path="upcoming" element={< UpcomingTrips />} />
+          <Route path="ongoing" element={<OngoingTrips />} />
           <Route path="today-trips" element={<TodaysTrip />} />
 
           {/* Customer */}

@@ -559,7 +559,7 @@ const TripEdit: React.FC = () => {
                 <KiduKilometerAccordion
                   key={`km-${refreshKey}`}
                   tripId={recordId}
-                  driverId={driverId}
+                  // driverId={driverId}
                 />
               </Col>
             </Row>

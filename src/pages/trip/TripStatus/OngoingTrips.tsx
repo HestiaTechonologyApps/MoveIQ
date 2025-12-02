@@ -7,7 +7,7 @@ const OngoingTrips: React.FC = () => (
     title="Ongoing Trips"
     subtitle="List of trips that are ongoing with quick edit & view actions"
     fetchMode="status"
-    status="Ongoing"
+    status="ongoing"
     showAddButton={false}
   />
 );

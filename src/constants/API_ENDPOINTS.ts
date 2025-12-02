@@ -10,6 +10,9 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `${API_BASE_URL}/Customer/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/Customer/${id}`,
   },
+  CUSTOMERDEPARTMENT :{
+    GET_ALL:`${API_BASE_URL}/CustomerDepartment`
+  },
 
   DRIVER: {
     GET_ALL: `${API_BASE_URL}/Driver/GetAll`,
@@ -94,6 +97,7 @@ export const API_ENDPOINTS = {
   TRIP_KILOMETER: {
     GET_ALL: `${API_BASE_URL}/TripkiloMeter`,
     GET_BY_ID: (id: number) => `${API_BASE_URL}/TripkiloMeter/${id}`,
+    GET_BY_TRIP_ID: `${API_BASE_URL}/TripkiloMeter/GetTripKilometerOfTrip`,
     CREATE: `${API_BASE_URL}/TripkiloMeter`,
     UPDATE: (id: number) => `${API_BASE_URL}/TripkiloMeter/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/TripkiloMeter/${id}`,

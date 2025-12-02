@@ -228,7 +228,7 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
                 </tr>
               </thead>
 
-              <tbody className="text-center" style={{ fontFamily: "Urbanist", fontSize: 15 }}>
+              <tbody className="text-center" style={{ fontFamily: "Urbanist", fontSize: 13 }}>
                 {loading ? (
                   <tr>
                     <td colSpan={columns.length + (showActions ? 1 : 0)} className="text-center py-5">

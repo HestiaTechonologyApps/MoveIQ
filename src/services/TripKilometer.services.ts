@@ -14,9 +14,16 @@ class TripKilometerService {
     return HttpService.callApi(API_ENDPOINTS.TRIP_KILOMETER.GET_BY_ID(id), "GET");
   }
 
+  // static async getByTripId(tripId: number): Promise<CustomResponse<TripKilometer[]>> {
+  //   return HttpService.callApi(`${API_ENDPOINTS.TRIP_KILOMETER.GET_ALL}?tripOrderId=${tripId}`, "GET");
+  // }
   static async getByTripId(tripId: number): Promise<CustomResponse<TripKilometer[]>> {
-    return HttpService.callApi(`${API_ENDPOINTS.TRIP_KILOMETER.GET_ALL}?tripOrderId=${tripId}`, "GET");
-  }
+  return HttpService.callApi(
+    `${API_ENDPOINTS.TRIP_KILOMETER.GET_BY_TRIP_ID}?tripOrderId=${tripId}`,
+    "GET"
+  );
+}
+
 
   static async create(data: TripKilometerCreateRequest): Promise<CustomResponse<TripKilometer>> {
     return HttpService.callApi(API_ENDPOINTS.TRIP_KILOMETER.CREATE, "POST", data);

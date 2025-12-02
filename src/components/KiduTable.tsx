@@ -176,7 +176,7 @@ const KiduTable: React.FC<KiduTableProps> = ({
                 </tr>
               </thead>
 
-              <tbody className="text-center" style={{ fontFamily: "Urbanist", fontSize: 15 }}>
+              <tbody className="text-center" style={{ fontFamily: "Urbanist", fontSize: 13 }}>
                 {currentData.length === 0 ? (
                   <tr>
                     <td

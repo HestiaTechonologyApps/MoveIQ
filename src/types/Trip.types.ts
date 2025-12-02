@@ -33,6 +33,7 @@ export interface Trip {
     paymentDetails: string;
     customerName: string;
     driverName: string;
+    departmentName?:string;
     auditLogs?: AuditTrails[];
 }
 
