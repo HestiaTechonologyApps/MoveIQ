@@ -130,12 +130,9 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, loadData]);
 
-  useEffect(() => {
-    if (currentPage !== 1 || searchTerm !== "") {
-      console.log("📄 KiduServerTable - Page changed:", currentPage);
-      loadData(currentPage, searchTerm);
-    }
-  }, [currentPage, loadData, searchTerm]);
+useEffect(() => {
+  loadData(currentPage, searchTerm);  // ✅ Always load when page changes
+}, [currentPage, loadData, searchTerm]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
