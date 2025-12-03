@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Table, Button, Row, Col, Container, Pagination } from "react-bootstrap";
-import { FaEdit, FaEye } from "react-icons/fa";
+import { FaEdit, FaEye, FaPlay } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import KiduLoader from "../KiduLoader";
 import KiduSearchBar from "../KiduSearchBar";
@@ -36,6 +36,8 @@ interface KiduServerTableProps {
     searchTerm: string;
   }) => Promise<{ data: any[]; total: number }>;
   rowsPerPage?: number;
+  showStartButton?: boolean;
+  onStartTrip?: (item: any) => Promise<void>;
 }
 
 const KiduServerTable: React.FC<KiduServerTableProps> = ({
@@ -57,6 +59,8 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
   showTitle = true,
   fetchData,
   rowsPerPage = 10,
+  showStartButton = false,
+  onStartTrip,
 }) => {
   const tableRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -67,10 +71,10 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [startingTrips, setStartingTrips] = useState<Set<string>>(new Set());
 
   const totalPages = Math.ceil(total / rowsPerPage);
 
-  // Memoize loadData to prevent unnecessary recreations
   const loadData = useCallback(async (page: number, search: string) => {
     try {
       setLoading(true);
@@ -107,14 +111,12 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
     }
   }, [fetchData, rowsPerPage]);
 
-  // Load data on mount
   useEffect(() => {
     console.log("🚀 KiduServerTable - Initial load");
     loadData(currentPage, searchTerm);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadData]);
 
-  // Debounced search - reset to page 1 when searching
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (searchTerm !== "" || currentPage !== 1) {
@@ -128,7 +130,6 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, loadData]);
 
-  // Load data on page change
   useEffect(() => {
     if (currentPage !== 1 || searchTerm !== "") {
       console.log("📄 KiduServerTable - Page changed:", currentPage);
@@ -142,6 +143,28 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
       if (tableRef.current) {
         tableRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
       }
+    }
+  };
+
+  const handleStartTrip = async (item: any) => {
+    if (!onStartTrip) return;
+
+    const tripId = item[idKey];
+    setStartingTrips(prev => new Set(prev).add(tripId));
+
+    try {
+      await onStartTrip(item);
+      // Reload data after successful start
+      await loadData(currentPage, searchTerm);
+    } catch (error) {
+      console.error("Failed to start trip:", error);
+      alert("Failed to start trip. Please try again.");
+    } finally {
+      setStartingTrips(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(tripId);
+        return newSet;
+      });
     }
   };
 
@@ -281,6 +304,27 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
                       {showActions && (
                         <td className="text-center" onClick={(e) => e.stopPropagation()}>
                           <div className="d-flex justify-content-center gap-2">
+                            {showStartButton && (
+                              <Button
+                                size="sm"
+                                style={{
+                                  backgroundColor: "#28a745",
+                                  border: "none",
+                                  color: "white",
+                                }}
+                                onClick={() => handleStartTrip(item)}
+                                disabled={startingTrips.has(item[idKey])}
+                              >
+                                {startingTrips.has(item[idKey]) ? (
+                                  <>Starting...</>
+                                ) : (
+                                  <>
+                                    <FaPlay className="me-1" /> Start
+                                  </>
+                                )}
+                              </Button>
+                            )}
+
                             {editRoute && (
                               <Button
                                 size="sm"
