@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Table, Button, Row, Col, Container, Pagination } from "react-bootstrap";
+import { Table, Button, Row, Col, Container, Pagination, InputGroup, Form } from "react-bootstrap";
 import { FaEdit, FaEye, FaPlay } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import KiduLoader from "../KiduLoader";
@@ -7,6 +7,9 @@ import KiduSearchBar from "../KiduSearchBar";
 import KiduButton from "../KiduButton";
 import KiduExcelButton from "../KiduExcelButton";
 import KiduPopupButton from "../KiduPopupButton";
+import { BsSearch } from "react-icons/bs";
+import CustomerPopup from "../../pages/customer/CustomerPopup";
+import KiduPrevious from "../KiduPrevious";
 
 interface Column {
   key: string;
@@ -23,8 +26,12 @@ interface KiduServerTableProps {
   viewRoute?: string;
   editRoute?: string;
   showAddButton?: boolean;
+  showBackButton?:boolean;
+  showCustomerPopUp?: boolean;
+  showInvoiceButton?: boolean;
   showKiduPopupButton?: boolean;
   showExport?: boolean;
+  showCheckbox?: boolean;
   onRowClick?: (item: any) => void;
   onAddClick?: () => void;
   showSearch?: boolean;
@@ -34,6 +41,7 @@ interface KiduServerTableProps {
     pageNumber: number;
     pageSize: number;
     searchTerm: string;
+    customerId?: number;
   }) => Promise<{ data: any[]; total: number }>;
   rowsPerPage?: number;
   showStartButton?: boolean;
@@ -50,8 +58,12 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
   viewRoute,
   editRoute,
   showAddButton = true,
+  showBackButton = false,
+  showCustomerPopUp = false,
+  showInvoiceButton = false,
   showKiduPopupButton = false,
   showExport = true,
+  showCheckbox = false,
   onRowClick,
   onAddClick,
   showSearch = true,
@@ -72,35 +84,40 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [startingTrips, setStartingTrips] = useState<Set<string>>(new Set());
+  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+
 
   const totalPages = Math.ceil(total / rowsPerPage);
 
-  const loadData = useCallback(async (page: number, search: string) => {
+  const loadData = useCallback(async (page: number, search: string, custId?: number) => {
     try {
       setLoading(true);
       setError(null);
-      
-      console.log("🔄 KiduServerTable - Loading data for:", { 
-        page, 
-        search, 
-        rowsPerPage 
+
+      console.log("🔄 KiduServerTable - Loading data for:", {
+        page,
+        search,
+        rowsPerPage
       });
-      
+
       const result = await fetchData({
         pageNumber: page,
         pageSize: rowsPerPage,
         searchTerm: search,
+        customerId: custId || 0,
       });
-      
+
       console.log("📊 KiduServerTable - Received data:", {
         dataLength: result.data?.length,
         total: result.total,
         firstItem: result.data?.[0]
       });
-      
+
       setData(result.data || []);
       setTotal(result.total || 0);
-      
+
     } catch (err: any) {
       console.error("❌ KiduServerTable - Error:", err);
       setError(err.message || "Failed to load data");
@@ -113,26 +130,26 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
 
   useEffect(() => {
     console.log("🚀 KiduServerTable - Initial load");
-    loadData(currentPage, searchTerm);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadData]);
+    loadData(currentPage, searchTerm, selectedCustomer?.customerId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadData, currentPage, searchTerm, selectedCustomer]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (searchTerm !== "" || currentPage !== 1) {
         console.log("🔍 KiduServerTable - Search triggered:", searchTerm);
         setCurrentPage(1);
-        loadData(1, searchTerm);
+        loadData(1, searchTerm, selectedCustomer?.customerId);
       }
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm, loadData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, loadData, selectedCustomer]);
 
-useEffect(() => {
-  loadData(currentPage, searchTerm);  // ✅ Always load when page changes
-}, [currentPage, loadData, searchTerm]);
+  useEffect(() => {
+    loadData(currentPage, searchTerm);  // ✅ Always load when page changes
+  }, [currentPage, loadData, searchTerm]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -152,7 +169,7 @@ useEffect(() => {
     try {
       await onStartTrip(item);
       // Reload data after successful start
-      await loadData(currentPage, searchTerm);
+      await loadData(currentPage, searchTerm, selectedCustomer?.customerId);
     } catch (error) {
       console.error("Failed to start trip:", error);
       alert("Failed to start trip. Please try again.");
@@ -165,8 +182,28 @@ useEffect(() => {
     }
   };
 
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedRows(new Set(data.map(item => item[idKey])));
+    } else {
+      setSelectedRows(new Set());
+    }
+  };
+
+  const handleSelectRow = (itemId: string) => {
+    setSelectedRows(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId);
+      } else {
+        newSet.add(itemId);
+      }
+      return newSet;
+    });
+  };
+
   const handleRetry = () => {
-    loadData(currentPage, searchTerm);
+    loadData(currentPage, searchTerm, selectedCustomer?.customerId);
   };
 
   const fieldName = title ? title.replace("Select ", "") : addButtonLabel;
@@ -186,12 +223,15 @@ useEffect(() => {
 
   return (
     <Container fluid className="py-3 mt-4">
-      {showTitle !== false && total > 0 && (
+     {showTitle !== false && total > 0 && (
         <Row className="mb-2 align-items-center">
           <Col>
-            <h4 className="mb-0 fw-bold" style={{ fontFamily: "Urbanist" }}>
-              {title}
-            </h4>
+           <div className="d-flex">
+           <span className="me-2"> {showBackButton && <KiduPrevious/>}</span>
+              <h4 className="mb-0 fw-bold mt-1" style={{ fontFamily: "Urbanist" }}>
+                 {title}
+              </h4>
+           </div>
             {subtitle && (
               <p className="text-muted" style={{ fontFamily: "Urbanist" }}>
                 {subtitle}
@@ -212,12 +252,66 @@ useEffect(() => {
               />
             </Col>
           )}
+          {showCustomerPopUp && (
+            <Col md={3}>
+              <InputGroup>
+                <Form.Control
+                  size="sm"
+                  type="text"
+                  readOnly
+                  placeholder="Select customer"
+                  value={selectedCustomer?.customerName || ""}
+                  style={{
+                    height: "31px",
+                    fontSize: "13px",
+                    borderColor: "#dee2e6",
+                    borderRight: "none",
+                    boxShadow: "none",
+                    fontFamily: "Urbanist",
+                  }}
+                />
+                <Button
+                  size="sm"
+                  onClick={() => setShowCustomerModal(true)}
+                  style={{
+                    backgroundColor: "#18575A",
+                    border: "none",
+                    height: "31px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingInline: "12px",
+                  }}
+                >
+                  <BsSearch />
+                </Button>
+                {selectedCustomer && (
+                  <Button
+                    size="sm"
+                    variant="outline-secondary"
+                    onClick={() => setSelectedCustomer(null)}
+                  >
+                    Clear
+                  </Button>
+                )}
+              </InputGroup>
+            </Col>
+          )}
 
           {showAddButton && addRoute && (
             <Col xs="auto" className="text-end">
               <KiduButton
                 label={`+ ${addButtonLabel}`}
                 to={addRoute}
+                className="fw-bold d-flex align-items-center text-white"
+                style={{ backgroundColor: "#18575A", border: "none", height: 45, width: 200 }}
+              />
+            </Col>
+          )}
+          {showInvoiceButton && (
+            <Col xs="auto" className="ms-auto text-end">
+              <KiduButton
+                label="Generate Invoice"
                 className="fw-bold d-flex align-items-center text-white"
                 style={{ backgroundColor: "#18575A", border: "none", height: 45, width: 200 }}
               />
@@ -232,6 +326,15 @@ useEffect(() => {
             <Table striped bordered hover className="align-middle mb-0">
               <thead className="table-light text-center" style={{ fontFamily: "Urbanist" }}>
                 <tr>
+                  {showCheckbox && (
+                    <th style={{ width: "50px" }}>
+                      <Form.Check
+                        type="checkbox"
+                        checked={selectedRows.size === data.length && data.length > 0}
+                        onChange={handleSelectAll}
+                      />
+                    </th>
+                  )}
                   {columns.map((col) => (
                     <th key={col.key}>{col.label}</th>
                   ))}
@@ -251,14 +354,14 @@ useEffect(() => {
               <tbody className="text-center" style={{ fontFamily: "Urbanist", fontSize: 13 }}>
                 {loading ? (
                   <tr>
-                    <td colSpan={columns.length + (showActions ? 1 : 0)} className="text-center py-5">
+                    <td colSpan={columns.length + (showActions ? 1 : 0) + (showCheckbox ? 1 : 0)} className="text-center py-5">
                       <KiduLoader type="trip..." />
                     </td>
                   </tr>
                 ) : data.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={columns.length + (showActions ? 1 : 0)}
+                      colSpan={columns.length + (showActions ? 1 : 0) + (showCheckbox ? 1 : 0)}
                       className="text-center py-5"
                       style={{ border: "2px solid #dee2e6" }}
                     >
@@ -284,6 +387,15 @@ useEffect(() => {
                       onClick={() => onRowClick?.(item)}
                       style={{ cursor: onRowClick ? "pointer" : "default" }}
                     >
+                      {showCheckbox && (
+                        <td onClick={(e) => e.stopPropagation()}>
+                          <Form.Check
+                            type="checkbox"
+                            checked={selectedRows.has(item[idKey])}
+                            onChange={() => handleSelectRow(item[idKey])}
+                          />
+                        </td>
+                      )}
                       {columns.map((col) => (
                         <td key={`${item[idKey]}-${col.key}`}>
                           {col.key === "profile" ? (
@@ -413,6 +525,21 @@ useEffect(() => {
               onClick={() => handlePageChange(totalPages)}
             />
           </Pagination>
+        </div>
+      )}
+
+      {showCustomerModal && (
+        <div>
+          {/* Replace this with your actual CustomerPopup component */}
+          <CustomerPopup
+            show={showCustomerModal}
+            handleClose={() => setShowCustomerModal(false)}
+            onSelect={(customer) => {
+              setSelectedCustomer(customer);
+              setShowCustomerModal(false);
+              setCurrentPage(1);
+            }}
+          />
         </div>
       )}
     </Container>

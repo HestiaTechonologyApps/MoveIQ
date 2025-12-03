@@ -49,7 +49,11 @@ import ExpenseEdit from './pages/expense/Edit';
 import ViewExpense from './pages/expense/View';
 
 //Invoice
-import InvoiceMasterList from './pages/invoice/List';
+import InvoiceManagement from './pages/invoice/InvoiceManagement';
+import UninvoicedTrips from './pages/trip/TripStatus/UninvoicedTrips';
+import PendingInvoices from './pages/invoice/InvoiceStatus/PendingInvoices';
+import CanceledInvoices from './pages/invoice/InvoiceStatus/CanceledInvoices';
+import CompletedInvoices from './pages/invoice/InvoiceStatus/CompletedInvoices';
 import ViewInvoice from './pages/invoice/View';
 
 //Vehicle
@@ -81,6 +85,7 @@ import ExpenseTypeList from './pages/settings/expenseType/List';
 import CreateExpenseType from './pages/settings/expenseType/Create';
 import EditExpenseType from './pages/settings/expenseType/Edit';
 import ViewExpenseType from './pages/settings/expenseType/View';
+
 
 function App() {
 
@@ -127,7 +132,11 @@ function App() {
           <Route path="driver-view/:driverId" element={<DriverView />} />
 
           {/* Invoice */}
-          <Route path="invoice-list" element={<InvoiceMasterList />} />
+          <Route path="invoice-management" element={<InvoiceManagement />} />
+          <Route path="invoice-management/uninvoiced-trips" element={<UninvoicedTrips />} />
+          <Route path="invoice-management/pending-invoices" element={<PendingInvoices />} />
+          <Route path="invoice-management/completed-invoices" element={<CompletedInvoices />} />
+          <Route path="invoice-management/canceled-invoices" element={<CanceledInvoices />} />
           <Route path="view-invoice/:invoiceId" element={<ViewInvoice />} />
 
           {/* Expense */}

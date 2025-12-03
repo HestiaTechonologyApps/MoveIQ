@@ -6,3 +6,4 @@ export interface ServersideTrip {
     pagesize: number;
     pagenumber: number;
 }
+

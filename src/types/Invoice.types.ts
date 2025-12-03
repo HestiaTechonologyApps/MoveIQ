@@ -13,3 +13,12 @@ export interface Invoice {
     isDeleted: boolean;
     auditLogs?: AuditTrails[];
 }
+
+export interface InvoiceDashboardCard {
+  title?: string;
+  value?: number;
+  change?: number;
+  color?: string;
+  route?: string;
+  date?: string | null;
+}

@@ -1,13 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import TripService from "../../services/Trip.services";
-import KiduServerTable from "./KiduServerTable";
+import KiduServerTable from "../Trip/KiduServerTable";
+import InvoiceMasterService from "../../services/Invoice.services";
 
-interface KiduServerTripListProps {
+interface KiduServerInvoiceListProps {
   title: string;
   subtitle?: string;
-  fetchMode: "all" | "today" | "status" | "uninvoiced";
-  status?: "Scheduled" | "Completed" | "Canceled" | "ongoing" | "upcoming";
+  fetchMode: "completed" | "pending" | "canceled";
   showAddButton?: boolean;
   showInvoiceButton?: boolean
   showCustomerPopUp?: boolean
@@ -15,25 +14,18 @@ interface KiduServerTripListProps {
   showBackButton?:boolean
 }
 
-const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
+const KiduServerInvoiceList: React.FC<KiduServerInvoiceListProps> = ({
   title,
   subtitle,
   fetchMode,
-  status,
   showAddButton = true,
   showInvoiceButton = false,
   showCustomerPopUp = false,
   showSearch = true,
-  showBackButton= false
+  showBackButton = true
 }) => {
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
-
-  // Show start button only for upcoming trips
-  const showStartButton = fetchMode === "status" && status === "upcoming";
-
-  // Show checkbox only for uninvoiced trips
-  const showCheckbox = fetchMode === "uninvoiced";
 
   const columns = [
     { key: "tripCode", label: "Trip ID" },
@@ -59,17 +51,15 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
   }) => {
     let listType = "";
 
-    if (fetchMode === "all") {
-      listType = "all";
-    } else if (fetchMode === "today") {
-      listType = "today";
-    } else if (fetchMode === "uninvoiced") {
-      listType = "uninvoiced";
-    } else if (fetchMode === "status" && status) {
-      listType = status;
-    }
+    if (fetchMode === "completed") {
+      listType = "completed";
+    } else if (fetchMode === "pending") {
+      listType = "pending";
+    } else if (fetchMode === "canceled") {
+      listType = "canceled";
+    } 
 
-    const response = await TripService.getPaginatedTrips({
+    const response = await InvoiceMasterService.getPaginatedInvoices({
       year: currentYear,
       customerId: customerId,
       listType: listType,
@@ -99,26 +89,6 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
     }
   };
 
-  // Handler for starting a trip
-  const handleStartTrip = async (trip: any) => {
-    try {
-      console.log("🚀 Starting trip:", trip.tripOrderId);
-
-      // Call the update status API with correct property names
-      await TripService.updatestatus({
-        tripOrderId: trip.tripOrderId,
-        tripStatus: "started", // ✅ Changed from "status" to "tripStatus"
-        remark: "Trip started from upcoming list" // ✅ Added required remark field
-      });
-
-      console.log("✅ Trip started successfully");
-
-      // Table will auto-reload after this function completes
-    } catch (error) {
-      console.error("❌ Failed to start trip:", error);
-      throw error;
-    }
-  };
 
   return (
     <KiduServerTable
@@ -131,21 +101,19 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
       viewRoute="/dashboard/trip-view"
       editRoute="/dashboard/trip-edit"
       showAddButton={showAddButton}
-      showBackButton={showBackButton}
       showInvoiceButton={showInvoiceButton}
       showCustomerPopUp={showCustomerPopUp}
-      showCheckbox={showCheckbox}
       showExport={true}
       showSearch={showSearch}
+      showBackButton={showBackButton}
       showActions={true}
       showTitle={true}
       fetchData={fetchData}
       rowsPerPage={10}
-      showStartButton={showStartButton}
-      onStartTrip={showStartButton ? handleStartTrip : undefined}
+      showStartButton={false}
       onRowClick={(trip) => navigate(`/trips/view/${trip.tripOrderId}`)}
     />
   );
 };
 
-export default KiduServerTripList;
+export default KiduServerInvoiceList;

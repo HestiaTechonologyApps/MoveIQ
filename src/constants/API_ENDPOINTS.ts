@@ -118,6 +118,10 @@ export const API_ENDPOINTS = {
     DELETE: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
   },
 
+  INVOICE_DASHBOARD : {
+     GET_ALL: (year: number) => `${API_BASE_URL}/InvoiceDashboard/GetInvoiceDashboard?year=${year}`,
+  },
+
   EXPENSE_TYPE: {
     GET_ALL: `${API_BASE_URL}/ExpenseType`,
     GET_BY_ID: (id: number) => `${API_BASE_URL}/ExpenseType/${id}`,
@@ -154,6 +158,9 @@ export const API_ENDPOINTS = {
 
   SERVER_SIDE_TRIP: {
     GET_PAGINATED: `${API_BASE_URL}/Api_PaginatedListData/trips-paginated`
+  },
+  SERVER_SIDE_INVOICE: {
+    GET_PAGINATED_INVOICE: `${API_BASE_URL}/Api_PaginatedListData/invoice-paginated`
   },
 
   COMMENT: {
