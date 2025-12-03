@@ -21,7 +21,9 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
 
-  // Updated columns to match the fields you want to display
+  // Show start button only for upcoming trips
+  const showStartButton = fetchMode === "status" && status === "upcoming";
+
   const columns = [
     { key: "tripCode", label: "Trip ID" },
     { key: "vehicleTakeOfTimeString", label: "Vehicle Take-off time" },
@@ -30,7 +32,7 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
     { key: "recivedVia", label: "Received Via" },
     { key: "driverName", label: "Driver" },
     { key: "pickUpFrom", label: "Pickup From" },
-    { key: "status", label: "Status" }
+    { key: "tripStatus", label: "Status" } // ✅ Changed from "status" to "tripStatus"
   ];
 
   const fetchData = async ({
@@ -44,13 +46,12 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
   }) => {
     let listType = "";
     
-    // Determine listType based on fetchMode
     if (fetchMode === "all") {
       listType = "all";
     } else if (fetchMode === "today") {
       listType = "today";
     } else if (fetchMode === "status" && status) {
-      listType = status; // "Scheduled", "Completed", "Canceled" , ongoing , upcoming
+      listType = status;
     }
 
     const response = await TripService.getPaginatedTrips({
@@ -68,9 +69,9 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
     if (response.isSucess && response.value) {
       console.log("Data:", response.value.data);
       
-      // Check if the first item has the fields you want
       if (response.value.data.length > 0) {
         console.log("First item fields:", Object.keys(response.value.data[0]));
+        console.log("First item tripStatus:", response.value.data[0].tripStatus);
       }
       
       return {
@@ -79,6 +80,27 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
       };
     } else {
       throw new Error(response.error || "Failed to fetch trips");
+    }
+  };
+
+  // Handler for starting a trip
+  const handleStartTrip = async (trip: any) => {
+    try {
+      console.log("🚀 Starting trip:", trip.tripOrderId);
+      
+      // Call the update status API with correct property names
+      await TripService.updatestatus({
+        tripOrderId: trip.tripOrderId,
+        tripStatus: "started", // ✅ Changed from "status" to "tripStatus"
+        remark: "Trip started from upcoming list" // ✅ Added required remark field
+      });
+
+      console.log("✅ Trip started successfully");
+      
+      // Table will auto-reload after this function completes
+    } catch (error) {
+      console.error("❌ Failed to start trip:", error);
+      throw error;
     }
   };
 
@@ -99,6 +121,8 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
       showTitle={true}
       fetchData={fetchData}
       rowsPerPage={10}
+      showStartButton={showStartButton}
+      onStartTrip={showStartButton ? handleStartTrip : undefined}
       onRowClick={(trip) => navigate(`/trips/view/${trip.tripOrderId}`)}
     />
   );
