@@ -2,10 +2,10 @@ import React, { useState, useEffect, type ChangeEvent, type FormEvent } from "re
 import { Col, Container, Row, Form, InputGroup, Button, Spinner } from "react-bootstrap";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import toast, { Toaster } from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import AuthService from "../services/common/Auth.services";
 
-// --- CAROUSEL DATA (From your Proposal) ---
+// --- CAROUSEL DATA ---
 const SLIDES = [
     {
         title: "Visual Command Center",
@@ -47,23 +47,22 @@ const styles = {
     rightColumn: {
         position: 'relative' as 'relative',
         minHeight: '100vh',
-        backgroundColor: '#0f172a', // Slate-900 base
+        backgroundColor: '#0f172a',
         overflow: 'hidden',
     },
-    // Dynamic Background Layer
     bgLayer: (imgUrl: string) => ({
         position: 'absolute' as 'absolute',
         top: 0, left: 0, right: 0, bottom: 0,
         backgroundImage: `url('${imgUrl}')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        transition: 'background-image 1s ease-in-out', // Smooth crossfade
-        transform: 'scale(1.05)', // Slight zoom effect
+        transition: 'background-image 1s ease-in-out',
+        transform: 'scale(1.05)',
     }),
     overlay: {
         position: 'absolute' as 'absolute',
         top: 0, left: 0, right: 0, bottom: 0,
-        background: 'linear-gradient(to top, #0f172a 10%, rgba(15, 23, 42, 0.6) 100%)', // Gradient overlay
+        background: 'linear-gradient(to top, #0f172a 10%, rgba(15, 23, 42, 0.6) 100%)',
         zIndex: 1,
     },
     carouselContent: {
@@ -80,7 +79,7 @@ const styles = {
         fontSize: '15px',
     },
     primaryBtn: {
-        backgroundColor: '#0f766e', // Teal-700
+        backgroundColor: '#0f766e',
         borderColor: '#0f766e',
         padding: '12px',
         fontWeight: 600,
@@ -103,6 +102,11 @@ interface Errors {
 }
 
 const Login: React.FC = () => {
+    // --- HOOKS MUST BE AT THE TOP OF COMPONENT ---
+    const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || "/dashboard";
+
     // --- AUTH STATE ---
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
@@ -113,18 +117,16 @@ const Login: React.FC = () => {
     
     // --- CAROUSEL STATE ---
     const [activeSlide, setActiveSlide] = useState<number>(0);
-    
-    const navigate = useNavigate();
 
     // --- CAROUSEL EFFECT ---
     useEffect(() => {
         const timer = setInterval(() => {
             setActiveSlide((prev) => (prev + 1) % SLIDES.length);
-        }, 5000); // Change slide every 5 seconds
+        }, 5000);
         return () => clearInterval(timer);
     }, []);
 
-    // --- VALIDATION LOGIC (Kept same) ---
+    // --- VALIDATION LOGIC ---
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
 
@@ -168,7 +170,8 @@ const Login: React.FC = () => {
                     const storedToken = localStorage.getItem('jwt_token');
                     if (storedToken) {
                         toast.success("Login successful!");
-                        setTimeout(() => navigate("/dashboard"), 1000);
+                        // Redirect to the page they were trying to access, or dashboard
+                        setTimeout(() => navigate(from, { replace: true }), 1000);
                     } else {
                         toast.error("Login successful but data storage failed.");
                     }
@@ -282,7 +285,7 @@ const Login: React.FC = () => {
                     </div>
                 </Col>
 
-                {/* RIGHT COLUMN: Feature Carousel (Hidden on Mobile) */}
+                {/* RIGHT COLUMN: Feature Carousel */}
                 <Col lg={6} className="d-none d-lg-block p-0" style={styles.rightColumn}>
                     
                     {/* Background Image Layer */}
@@ -299,7 +302,7 @@ const Login: React.FC = () => {
                             fontWeight: 600, 
                             letterSpacing: '0.05em', 
                             textTransform: 'uppercase', 
-                            color: '#5eead4', // Teal-300
+                            color: '#5eead4',
                             backgroundColor: 'rgba(15, 118, 110, 0.3)', 
                             border: '1px solid rgba(20, 184, 166, 0.4)',
                             borderRadius: '9999px',
@@ -331,7 +334,7 @@ const Login: React.FC = () => {
                 </Col>
             </Row>
             
-            {/* Inline Style for Simple Animation */}
+            {/* Inline Style for Animation */}
             <style>
                 {`
                     @keyframes fadeInUp {

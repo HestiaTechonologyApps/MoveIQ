@@ -11,7 +11,7 @@ const Sidebar: React.FC = () => {
     const [hovered, setHovered] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [vehiclesOpen, setVehiclesOpen] = useState(false);
-    // const [invoiceOpen, setInvoiceOpen] = useState(false);
+    const navigate = useNavigate();
 
     const menuItems = [
         { icon: <BsGridFill />, label: "Dashboard", path: "/dashboard", exact: true },
@@ -21,23 +21,21 @@ const Sidebar: React.FC = () => {
         { icon: <FaFileInvoice />, label: "Invoices", path: "/dashboard/invoice-management" },
         { icon: <BsCashStack />, label: "Expenses", path: "/dashboard/expense-list" },
     ];
-    // const invoiceSubMenu = [
-    //     { label: "Pending Invoices", path: "/dashboard/completed" },
-    // ]
+
     const vehiclesSubMenu = [
         { label: "Vehicles", path: "/dashboard/vehicle/vehicle-list" },
         { label: "Maintenance", path: "/dashboard/vehicle/maintenance-list" },
     ]
+
     const settingsSubMenu = [
         { label: "Users", path: "/dashboard/settings/user-list" },
         { label: "Company", path: "/dashboard/settings/company-list" },
         { label: "Expense Types", path: "/dashboard/settings/expense-type-list" },
     ];
 
-    const navigate = useNavigate();
     const handleLogout = () => {
         AuthService.logout();
-        navigate("/");
+        navigate("/login", { replace: true });
     };
 
     return (
@@ -78,13 +76,12 @@ const Sidebar: React.FC = () => {
                     style={{
                         flex: 1,
                         width: "100%",
-                        maxHeight: "calc(100vh - 190px)", // limit height so content can overflow (adjust 140px if you change profile area)
+                        maxHeight: "calc(100vh - 190px)",
                         overflowY: hovered ? "auto" : "hidden",
                         overflowX: hovered ? "hidden" : "hidden",
-                        scrollbarWidth: "thin", // make sure scroll is smooth and thin
+                        scrollbarWidth: "thin",
                         scrollbarColor: "#c0d5d6ff transparent",
                     }}
-                    /* Add a classname so we can style WebKit scrollbars if needed */
                     className="admin-sidebar-scroll"
                 >
                     {/* Navigation items */}
@@ -94,7 +91,7 @@ const Sidebar: React.FC = () => {
                                 <NavLink
                                     key={item.path}
                                     to={item.path}
-                                    end={item.exact} //Only exact match for Dashboard
+                                    end={item.exact}
                                     className={({ isActive }) =>
                                         `d-flex align-items-center p-2  ${isActive ? "bg-white text-success" : "text-white"
                                         } ${hovered ? "justify-content-start ms-5 me-5" : "justify-content-center"} rounded mx-2`
@@ -106,45 +103,6 @@ const Sidebar: React.FC = () => {
                                 </NavLink>
                             </div>
                         ))}
-
-                        {/* Invoice */}
-                        {/* <div
-                            className={`flex-column gap-2 w-100 text-center ${hovered ? "justify-content-start mt-2" : "justify-content-center"} rounded mt-1`}
-                            style={{ fontSize: "14px", textDecoration: "none" }}
-                            onClick={() => setInvoiceOpen(!invoiceOpen)}
-                        >
-                            <FaFileInvoice className="text-white" />
-                            {hovered && (
-                                <>
-                                    <span className="ms-2 text-white" style={{ cursor: "pointer" }}>Invoices</span>
-                                    <BsChevronDown
-                                        className="ms-2 text-white"
-                                        style={{ transition: "transform 0.3s", cursor: "pointer", transform: invoiceOpen ? "rotate(180deg)" : "rotate(0deg)" }}
-                                    />
-                                </>
-                            )}
-                        </div> */}
-
-                         {/* <Collapse in={invoiceOpen && hovered}>
-                            <div className="flex-column text-light mt-2" >
-                                {invoiceSubMenu.map((sub) => (
-                                    <NavLink
-                                        key={sub.path}
-                                        to={sub.path}
-                                        end
-                                        className={({ isActive }) =>
-                                            `d-block p-1 ${isActive ? "bg-white text-success rounded mx-3" : "text-white"}`
-                                        }
-                                        style={{ fontSize: "12px", textDecoration: "none" }}
-                                    >
-
-                                        {sub.label}
-                                    </NavLink>
-                                ))}
-                            </div>
-                        </Collapse> */}
-
-
 
                         {/* Vehicles */}
                         <div
@@ -176,7 +134,6 @@ const Sidebar: React.FC = () => {
                                         }
                                         style={{ fontSize: "12px", textDecoration: "none" }}
                                     >
-
                                         {sub.label}
                                     </NavLink>
                                 ))}
@@ -213,7 +170,6 @@ const Sidebar: React.FC = () => {
                                         }
                                         style={{ fontSize: "12px", textDecoration: "none" }}
                                     >
-
                                         {subItem.label}
                                     </NavLink>
                                 ))}
@@ -246,7 +202,7 @@ const Sidebar: React.FC = () => {
                         <NavLink
                             key={item.path}
                             to={item.path}
-                            end={item.exact} // Only exact match for Dashboard
+                            end={item.exact}
                             className={({ isActive }) =>
                                 `d-flex flex-column align-items-center ${isActive ? "text-warning" : "text-white"
                                 }`
@@ -260,7 +216,7 @@ const Sidebar: React.FC = () => {
                 </Container>
             </Navbar>
 
-            {/* Inline minimal WebKit scrollbar styles - won't change UI */}
+            {/* Inline minimal WebKit scrollbar styles */}
             <style>
                 {`
           .admin-sidebar-scroll::-webkit-scrollbar {
