@@ -63,34 +63,40 @@ const HomePage: React.FC = () => {
       return;
     }
 
+    // Show loading toast
+    const loadingToast = toast.loading("Searching for trip...");
+
     try {
-      const response = await TripService.getById(Number(term));
+      const tripId = Number(term);
+      
+      if (isNaN(tripId)) {
+        toast.dismiss(loadingToast);
+        toast.error("Please enter a valid Trip ID (numbers only).");
+        return;
+      }
+
+      const response = await TripService.getById(tripId);
+
+      toast.dismiss(loadingToast);
 
       if (response.isSucess && response.value) {
         const trip = response.value;
-        const status = trip.tripStatus;
-
-        switch (status) {
-          case "Scheduled":
-            navigate(`/dashboard/total-trips/${trip.tripOrderId}`);
-            break;
-          case "Completed":
-            navigate(`/dashboard/total-trips/${trip.tripOrderId}`);
-            break;
-          case "Canceled":
-            navigate(`/dashboard/total-trips/${trip.tripOrderId}`);
-            break;
-          default:
-            navigate(`/dashboard/total-trips/${trip.tripOrderId}`);
-        }
-
-        toast.success(`Trip ${trip.tripOrderId} found! Opening ${status} trips...`);
+        toast.success(`Trip ${trip.tripOrderId} found!`);
+        
+        // Navigate to trip view page
+        navigate(`/dashboard/trip-view/${trip.tripOrderId}`);
       } else {
-        toast.error("No trip found with this ID.");
+        toast.error(response.error || "No trip found with this ID.");
       }
-    } catch (error) {
+    } catch (error: any) {
+      toast.dismiss(loadingToast);
       console.error("Error fetching trip by ID:", error);
-      toast.error("Error fetching trip details.");
+      
+      if (error.message.includes("404")) {
+        toast.error("Trip not found. Please check the Trip ID.");
+      } else {
+        toast.error("Error fetching trip details. Please try again.");
+      }
     }
   };
 
@@ -101,7 +107,10 @@ const HomePage: React.FC = () => {
         {/* Search + Add Button */}
         <div className="d-flex justify-content-between flex-column flex-md-row align-items-stretch gap-2 mt-5">
 
-          <KiduSearchBar onSearch={handleSearch} />
+          <KiduSearchBar 
+            onSearch={handleSearch}
+            placeholder="Search by Trip ID..."
+          />
 
           <KiduButton
             label={
