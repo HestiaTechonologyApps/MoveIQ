@@ -1,6 +1,9 @@
 import { Route, Routes } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
+
+// Protected Route Component
+
 // Preloader
 import Preloader from './pages/dashboard/PreLoader';
 
@@ -85,6 +88,7 @@ import ExpenseTypeList from './pages/settings/expenseType/List';
 import CreateExpenseType from './pages/settings/expenseType/Create';
 import EditExpenseType from './pages/settings/expenseType/Edit';
 import ViewExpenseType from './pages/settings/expenseType/View';
+import ProtectedRoute from './Auth/ProtectedRoute';
 
 
 function App() {
@@ -92,15 +96,17 @@ function App() {
   return (
     <>
       <Routes>
-        {/* Preloader */}
+        {/* Public Routes */}
         <Route path='/' element={<Preloader />} />
-
-        {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
 
-        {/* DashBoard */}
-        <Route path="/dashboard" element={<DashBoard />}>
+        {/* Protected Routes - Wrap DashBoard and all child routes */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <DashBoard />
+          </ProtectedRoute>
+        }>
           {/* HomePage */}
           <Route index element={<HomePage />} />
 
@@ -176,6 +182,7 @@ function App() {
           <Route path="settings/view-expenses-type/:expenseTypeId" element={<ViewExpenseType />} />
 
         </Route>
+
         {/* Catch-All Route for 404 */}
         <Route path='*' element={<PageNotFound />} />
 
