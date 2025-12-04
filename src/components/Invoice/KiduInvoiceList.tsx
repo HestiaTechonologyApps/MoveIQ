@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import KiduServerTable from "../Trip/KiduServerTable";
 import InvoiceMasterService from "../../services/Invoice.services";
 
@@ -11,31 +10,26 @@ interface KiduServerInvoiceListProps {
   showInvoiceButton?: boolean
   showCustomerPopUp?: boolean
   showSearch?: boolean
-  showBackButton?:boolean
+  showBackButton?: boolean
 }
 
 const KiduServerInvoiceList: React.FC<KiduServerInvoiceListProps> = ({
   title,
   subtitle,
   fetchMode,
-  showAddButton = true,
   showInvoiceButton = false,
   showCustomerPopUp = false,
   showSearch = true,
   showBackButton = true
 }) => {
-  const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
 
   const columns = [
-    { key: "tripCode", label: "Trip ID" },
-    { key: "vehicleTakeOfTimeString", label: "Vehicle Take-off time" },
-    { key: "fromDateString", label: "Departure Date" },
-    { key: "customerName", label: "Customer Name" },
-    { key: "recivedVia", label: "Received Via" },
-    { key: "driverName", label: "Driver" },
-    { key: "pickUpFrom", label: "Pickup From" },
-    { key: "status", label: "Status" } // 
+    { key: "invoiceMasterId", label: "Invoicemaster Id" },
+    { key: "invoiceNum", label: "Invoice Number" },
+    { key: "createdOnString", label: "Invoice Date" },
+    { key: "companyName", label: "Company Name" },
+    { key: "totalAmount", label: "Total Amount" },
   ];
 
   const fetchData = async ({
@@ -57,19 +51,20 @@ const KiduServerInvoiceList: React.FC<KiduServerInvoiceListProps> = ({
       listType = "pending";
     } else if (fetchMode === "canceled") {
       listType = "canceled";
-    } 
+    }
 
     const response = await InvoiceMasterService.getPaginatedInvoices({
       year: currentYear,
       customerId: customerId,
       listType: listType,
       filtertext: searchTerm || "",
-      pagesize: pageSize,
+      pagesize: pageSize || 10,
       pagenumber: pageNumber,
     });
 
     console.log("API Response:", response);
     console.log("List Type:", listType);
+    console.log("Page Size:", pageSize);
     console.log("Customer ID:", customerId);
 
     if (response.isSucess && response.value) {
@@ -77,7 +72,6 @@ const KiduServerInvoiceList: React.FC<KiduServerInvoiceListProps> = ({
 
       if (response.value.data.length > 0) {
         console.log("First item fields:", Object.keys(response.value.data[0]));
-        console.log("First item tripStatus:", response.value.data[0].tripStatus);
       }
 
       return {
@@ -89,18 +83,15 @@ const KiduServerInvoiceList: React.FC<KiduServerInvoiceListProps> = ({
     }
   };
 
-
   return (
     <KiduServerTable
       title={title}
       subtitle={subtitle}
       columns={columns}
-      idKey="tripOrderId"
-      addButtonLabel="Add New Trip"
-      addRoute="/dashboard/trip-create"
-      viewRoute="/dashboard/trip-view"
-      editRoute="/dashboard/trip-edit"
-      showAddButton={showAddButton}
+      idKey="invoiceMasterId"
+      viewRoute="/dashboard/invoice-management/view-invoice"
+      editRoute="/dashboard/invoice-management/edit-invoice"
+      showAddButton={false}
       showInvoiceButton={showInvoiceButton}
       showCustomerPopUp={showCustomerPopUp}
       showExport={true}
@@ -111,7 +102,6 @@ const KiduServerInvoiceList: React.FC<KiduServerInvoiceListProps> = ({
       fetchData={fetchData}
       rowsPerPage={10}
       showStartButton={false}
-      onRowClick={(trip) => navigate(`/trips/view/${trip.tripOrderId}`)}
     />
   );
 };

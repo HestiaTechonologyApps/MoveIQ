@@ -110,17 +110,25 @@ export const API_ENDPOINTS = {
     FORGOT_PASSWORD: `${API_BASE_URL}/Auth/forgot-password`,
   },
 
-  INVOICE_MASTER: {
-    GET_ALL: `${API_BASE_URL}/InvoiceMaster`,
-    GET_BY_ID: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
-    CREATE: `${API_BASE_URL}/InvoiceMaster`,
-    UPDATE: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
-    DELETE: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
-  },
+  // INVOICE_MASTER: {
+  //   GET_ALL: `${API_BASE_URL}/InvoiceMaster`,
+  //   GET_BY_ID: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
+  //   CREATE: `${API_BASE_URL}/InvoiceMaster`,
+  //   UPDATE: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
+  //   DELETE: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
+  // },
 
   INVOICE_DASHBOARD : {
      GET_ALL: (year: number) => `${API_BASE_URL}/InvoiceDashboard/GetInvoiceDashboard?year=${year}`,
   },
+  INVOICE_MASTER: {
+  GET_ALL: `${API_BASE_URL}/InvoiceMaster`,
+  GET_BY_ID: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
+  CREATE: `${API_BASE_URL}/InvoiceMaster`,
+  UPDATE: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
+  DELETE: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
+  GENERATE_INVOICE: `${API_BASE_URL}/InvoiceMaster/generate-invoice-master`,
+},
 
   EXPENSE_TYPE: {
     GET_ALL: `${API_BASE_URL}/ExpenseType`,

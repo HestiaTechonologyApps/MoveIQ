@@ -15,7 +15,7 @@ const Sidebar: React.FC = () => {
 
     const menuItems = [
         { icon: <BsGridFill />, label: "Dashboard", path: "/dashboard", exact: true },
-        { icon:<FaCarSide />, label: "My Trips", path: "/dashboard/trip-list" },
+        { icon:<FaCarSide />, label: "My Trips", path: "/dashboard/total-trips" },
         { icon: <BsPeople />, label: "Customers", path: "/dashboard/customer-list" },
         { icon: <BsPersonFill />, label: "Drivers", path: "/dashboard/driver-list" },
         { icon: <FaFileInvoice />, label: "Invoices", path: "/dashboard/invoice-management" },
@@ -106,7 +106,7 @@ const Sidebar: React.FC = () => {
 
                         {/* Vehicles */}
                         <div
-                            className={`flex-column gap-2 w-100 text-center mt-2 ${hovered ? "justify-content-start mt-2 ms-1" : "justify-content-center"} rounded `}
+                            className={`flex-column gap-2 w-100 text-center mt-1 ${hovered ? "justify-content-start mt-2" : "justify-content-center"} rounded `}
                             style={{ fontSize: "14px", textDecoration: "none" }}
                             onClick={() => setVehiclesOpen(!vehiclesOpen)}
                         >
@@ -142,7 +142,7 @@ const Sidebar: React.FC = () => {
 
                         {/* Settings */}
                         <div
-                            className={`flex-column gap-2 w-100 text-center ${hovered ? "justify-content-start mt-3 ms-1" : "justify-content-center"} rounded  mt-2`}
+                            className={`flex-column gap-2 w-100 text-center ${hovered ? "justify-content-start mt-3" : "justify-content-center"} rounded  mt-2`}
                             style={{ fontSize: "14px", textDecoration: "none" }}
                             onClick={() => setSettingsOpen(!settingsOpen)}
                         >

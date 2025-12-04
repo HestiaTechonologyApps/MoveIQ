@@ -2,15 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-
-import ProgressBar from "../layout/ProgressBar";
 import Charts from "../layout/Charts";
-
 import TripService from "../services/Trip.services";
-
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import KiduLoader from "../components/KiduLoader";
 import KiduCard from "../components/KiduCard";
 import KiduButton from "../components/KiduButton";
@@ -152,9 +147,6 @@ const HomePage: React.FC = () => {
 
           <Charts />
 
-          <Row>
-            <ProgressBar />
-          </Row>
         </Container>
       </div>
 

@@ -12,7 +12,8 @@ interface KiduServerTripListProps {
   showInvoiceButton?: boolean
   showCustomerPopUp?: boolean
   showSearch?: boolean
-  showBackButton?:boolean
+  showBackButton?: boolean
+  onGenerateInvoice?: (selectedIds: string[], customerId?: number) => void;
 }
 
 const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
@@ -24,7 +25,8 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
   showInvoiceButton = false,
   showCustomerPopUp = false,
   showSearch = true,
-  showBackButton= false
+  showBackButton = false,
+   onGenerateInvoice,
 }) => {
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
@@ -43,6 +45,7 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
     { key: "recivedVia", label: "Received Via" },
     { key: "driverName", label: "Driver" },
     { key: "pickUpFrom", label: "Pickup From" },
+    { key: "commaSeperatedToLocations", label: "Drop Location" },
     { key: "status", label: "Status" } // 
   ];
 
@@ -112,7 +115,6 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
       });
 
       console.log("✅ Trip started successfully");
-
       // Table will auto-reload after this function completes
     } catch (error) {
       console.error("❌ Failed to start trip:", error);
@@ -143,6 +145,7 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
       rowsPerPage={10}
       showStartButton={showStartButton}
       onStartTrip={showStartButton ? handleStartTrip : undefined}
+      onGenerateInvoice={onGenerateInvoice}
       onRowClick={(trip) => navigate(`/trips/view/${trip.tripOrderId}`)}
     />
   );

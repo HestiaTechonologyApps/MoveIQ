@@ -34,6 +34,7 @@ export interface Trip {
     customerName: string;
     driverName: string;
     departmentName?:string;
+    commaSeperatedToLocations?:string;
     auditLogs?: AuditTrails[];
 }
 

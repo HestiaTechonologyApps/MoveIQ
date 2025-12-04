@@ -10,6 +10,7 @@ import KiduPopupButton from "../KiduPopupButton";
 import { BsSearch } from "react-icons/bs";
 import CustomerPopup from "../../pages/customer/CustomerPopup";
 import KiduPrevious from "../KiduPrevious";
+import toast, { Toaster } from "react-hot-toast";
 
 interface Column {
   key: string;
@@ -46,6 +47,7 @@ interface KiduServerTableProps {
   rowsPerPage?: number;
   showStartButton?: boolean;
   onStartTrip?: (item: any) => Promise<void>;
+  onGenerateInvoice?: (selectedIds: string[], customerId?: number) => void;
 }
 
 const KiduServerTable: React.FC<KiduServerTableProps> = ({
@@ -73,6 +75,7 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
   rowsPerPage = 10,
   showStartButton = false,
   onStartTrip,
+  onGenerateInvoice
 }) => {
   const tableRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -312,6 +315,22 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
             <Col xs="auto" className="ms-auto text-end">
               <KiduButton
                 label="Generate Invoice"
+                onClick={() => {
+        if (selectedRows.size === 0) {
+          toast.error("Please select at least one trip to generate invoice");
+          return;
+        }
+        if (!selectedCustomer) {
+          toast.error("Please select a customer");
+          return;
+        }
+        if (onGenerateInvoice) {
+          onGenerateInvoice(
+            Array.from(selectedRows),
+            selectedCustomer?.customerId
+          );
+        }
+      }}
                 className="fw-bold d-flex align-items-center text-white"
                 style={{ backgroundColor: "#18575A", border: "none", height: 45, width: 200 }}
               />
@@ -417,7 +436,7 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
                               <Button
                                 size="sm"
                                 style={{
-                                  backgroundColor: "#28a745",
+                                  backgroundColor: "#0e501dff",
                                   border: "none",
                                   color: "white",
                                 }}
@@ -542,6 +561,7 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
           />
         </div>
       )}
+      <Toaster position="top-right" />
     </Container>
   );
 };

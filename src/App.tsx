@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
 
 // Protected Route Component
+import ProtectedRoute from './Auth/ProtectedRoute';
 
 // Preloader
 import Preloader from './pages/dashboard/PreLoader';
@@ -53,11 +54,12 @@ import ViewExpense from './pages/expense/View';
 
 //Invoice
 import InvoiceManagement from './pages/invoice/InvoiceManagement';
+import InvoiceCreate from './pages/invoice/Create';
+import InvoiceEdit from './pages/invoice/Edit';
 import UninvoicedTrips from './pages/trip/TripStatus/UninvoicedTrips';
 import PendingInvoices from './pages/invoice/InvoiceStatus/PendingInvoices';
 import CanceledInvoices from './pages/invoice/InvoiceStatus/CanceledInvoices';
 import CompletedInvoices from './pages/invoice/InvoiceStatus/CompletedInvoices';
-import ViewInvoice from './pages/invoice/View';
 
 //Vehicle
 import VehicleList from './pages/vehicle/vehicles/List';
@@ -88,7 +90,6 @@ import ExpenseTypeList from './pages/settings/expenseType/List';
 import CreateExpenseType from './pages/settings/expenseType/Create';
 import EditExpenseType from './pages/settings/expenseType/Edit';
 import ViewExpenseType from './pages/settings/expenseType/View';
-import ProtectedRoute from './Auth/ProtectedRoute';
 
 
 function App() {
@@ -143,7 +144,9 @@ function App() {
           <Route path="invoice-management/pending-invoices" element={<PendingInvoices />} />
           <Route path="invoice-management/completed-invoices" element={<CompletedInvoices />} />
           <Route path="invoice-management/canceled-invoices" element={<CanceledInvoices />} />
-          <Route path="view-invoice/:invoiceId" element={<ViewInvoice />} />
+          <Route path="invoice-management/create-invoice" element={<InvoiceCreate />} />
+          <Route path="invoice-management/edit-invoice/:invoiceId" element={<InvoiceEdit />} />
+          {/* <Route path="view-invoice/:invoiceId" element={<ViewInvoice />} /> */}
 
           {/* Expense */}
           <Route path="expense-list" element={<ExpenseList />} />
