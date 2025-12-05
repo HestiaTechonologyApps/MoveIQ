@@ -9,11 +9,13 @@ import ActivityPanel from "./ActivityPanel";
 import KiduYearSelector from "../components/KiduYearSelector";
 import { useYear } from "../context/YearContext";
 import  profileImg from "../assets/Images/profile.jpeg"
+import { getFullImageUrl } from "../constants/API_ENDPOINTS";
 
 const NavbarComponent: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [username, setUsername] = useState<string>("Username");
+  const [profilePic, setProfilePic] = useState<string>(profileImg);
    const { selectedYear, setSelectedYear } = useYear();
   const navigate = useNavigate();
   // Fetch username from localStorage
@@ -28,7 +30,18 @@ const NavbarComponent: React.FC = () => {
           setUsername(parsedUser.userName);
         });
       }
+       if (parsedUser?.profilePic) {
+        setProfilePic(getFullImageUrl(parsedUser.profilePic));
+      }
     }
+     // 🔄 LISTEN FOR CHANGES TO PROFILE PIC
+    window.addEventListener("profile-pic-updated", () => {
+      const updatedUser = localStorage.getItem("user");
+      if (updatedUser) {
+        const parsed = JSON.parse(updatedUser);
+        setProfilePic(getFullImageUrl(parsed.profilePic));
+      }
+    });
   } catch (error) {
     console.error("Error parsing user from localStorage:", error);
   }
@@ -109,7 +122,8 @@ const NavbarComponent: React.FC = () => {
               onClick={toggleSettings}
             >
               <Image
-                src={profileImg}
+                //src={profileImg}
+                src={profilePic}
                 alt="profile"
                 className="rounded-circle me-2 border border-2"
                 style={{ width: "30px", height: "30px", objectFit: "cover" }}

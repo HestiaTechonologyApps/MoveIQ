@@ -10,8 +10,8 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `${API_BASE_URL}/Customer/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/Customer/${id}`,
   },
-  CUSTOMERDEPARTMENT :{
-    GET_ALL:`${API_BASE_URL}/CustomerDepartment`
+  CUSTOMERDEPARTMENT: {
+    GET_ALL: `${API_BASE_URL}/CustomerDepartment`
   },
 
   DRIVER: {
@@ -77,7 +77,8 @@ export const API_ENDPOINTS = {
     CREATE: `${API_BASE_URL}/User`,
     UPDATE: (id: number) => `${API_BASE_URL}/User/${id}`,
     DELETE: (id: number) => `${API_BASE_URL}/User/${id}`,
-    CHANGE_PASSWORD: `${API_BASE_URL}/User/ChangePassWord`
+    CHANGE_PASSWORD: `${API_BASE_URL}/User/ChangePassWord`,
+    UPLOAD_PROFILE_PIC: `${API_BASE_URL}/User/upload-profile-pic`,
   },
 
   COMPANY: {
@@ -118,17 +119,17 @@ export const API_ENDPOINTS = {
   //   DELETE: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
   // },
 
-  INVOICE_DASHBOARD : {
-     GET_ALL: (year: number) => `${API_BASE_URL}/InvoiceDashboard/GetInvoiceDashboard?year=${year}`,
+  INVOICE_DASHBOARD: {
+    GET_ALL: (year: number) => `${API_BASE_URL}/InvoiceDashboard/GetInvoiceDashboard?year=${year}`,
   },
   INVOICE_MASTER: {
-  GET_ALL: `${API_BASE_URL}/InvoiceMaster`,
-  GET_BY_ID: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
-  CREATE: `${API_BASE_URL}/InvoiceMaster`,
-  UPDATE: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
-  DELETE: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
-  GENERATE_INVOICE: `${API_BASE_URL}/InvoiceMaster/generate-invoice-master`,
-},
+    GET_ALL: `${API_BASE_URL}/InvoiceMaster`,
+    GET_BY_ID: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
+    CREATE: `${API_BASE_URL}/InvoiceMaster`,
+    UPDATE: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
+    DELETE: (id: number) => `${API_BASE_URL}/InvoiceMaster/${id}`,
+    GENERATE_INVOICE: `${API_BASE_URL}/InvoiceMaster/generate-invoice-master`,
+  },
 
   EXPENSE_TYPE: {
     GET_ALL: `${API_BASE_URL}/ExpenseType`,

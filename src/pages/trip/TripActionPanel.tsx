@@ -8,12 +8,12 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import ExpenseMasterService from "../../services/Expense.services";
 import TripService from "../../services/Trip.services";
-import InvoiceMasterService from "../../services/Invoice.services";
 import ConfirmCancelPopup from "./ActionPanel/ConfirmStatusModal";
 import TripPaymentModal from "./ActionPanel/TripPaymentModal";
 import KmModal from "./ActionPanel/KiloMeterModal";
 import TripSheet from "./ActionPanel/TripSheet";
 import InvoiceMaster from "./ActionPanel/InvoiceModal";
+import InvoiceMasterService from "../../services/InvoiceMaster.services";
 
 interface TripActionPanelProps {
     trip: any;

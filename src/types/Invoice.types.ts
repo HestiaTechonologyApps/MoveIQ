@@ -23,6 +23,7 @@ export interface InvoiceDetailDto {
 
 export interface InvoiceMaster {
   invoicemasterId: number;
+   invoiceMasterId?:number;
   invoiceNum: string;
   invoiceDate: string;
   financialYearId: number;
@@ -46,6 +47,7 @@ export interface GenerateInvoiceRequest {
 
 export interface CreateInvoiceRequest {
   invoicemasterId: number;
+  invoiceMasterId?:number
   invoiceNum: string;
   invoiceDate: string;
   financialYearId: number;

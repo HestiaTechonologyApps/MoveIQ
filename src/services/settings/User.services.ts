@@ -26,13 +26,29 @@ class UserService {
     return HttpService.callApi(API_ENDPOINTS.USER.DELETE(id), "DELETE");
   }
 
-   static async changePassword(data: {
+  static async changePassword(data: {
     userId: number;
     oldPassword: string;
     newPassword: string;
   }): Promise<CustomResponse<string>> {
     return HttpService.callApi(API_ENDPOINTS.USER.CHANGE_PASSWORD, "POST", data);
   }
+
+  static async uploadProfilePic(AppUserId: number, file: File): Promise<CustomResponse<string>> {
+  const formData = new FormData();
+  formData.append("AppUserId", AppUserId.toString());
+  formData.append("ProfilePic", file);
+
+  return HttpService.callApi(
+    API_ENDPOINTS.USER.UPLOAD_PROFILE_PIC,
+    "POST",
+    formData,
+    false,
+    true
+  );
+}
+
+
 }
 
 export default UserService;

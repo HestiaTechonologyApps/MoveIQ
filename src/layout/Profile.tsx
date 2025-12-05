@@ -4,13 +4,16 @@ import { Card, Button, Form, Row, Col } from "react-bootstrap";
 import toast, { Toaster } from "react-hot-toast";
 import { BsUpload } from "react-icons/bs";
 import UserService from "../services/settings/User.services";
-import  profileImg from "../assets/Images/profile.jpeg"
+import profileImg from "../assets/Images/profile.jpeg"
+import { getFullImageUrl } from "../constants/API_ENDPOINTS";
+
 
 const Profile: React.FC = () => {
   const [username, setUsername] = useState("User");
- // const [password] = useState("********"); // cannot be edited
+  // const [password] = useState("********"); // cannot be edited
   const [preview, setPreview] = useState<string>(profileImg);
-    // NEW password fields
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  // NEW password fields
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -21,30 +24,63 @@ const Profile: React.FC = () => {
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
-
         if (parsedUser?.userName) {
           setUsername(parsedUser.userName);
         }
+        // Load profile image (if backend stores it in localStorage)
+        if (parsedUser?.profilePic) {
+          const fullUrl = getFullImageUrl(parsedUser.profilePic);
+          setPreview(fullUrl);
+        }
       }
+      
     } catch (error) {
       console.error("Error parsing user from localStorage:", error);
     }
   }, []);
 
   // Handle new image selection
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  setSelectedFile(file);
+
+  // Preview instantly
+  const reader = new FileReader();
+  reader.onloadend = () => setPreview(reader.result as string);
+  reader.readAsDataURL(file);
+
+  // Upload immediately (no Save button needed)
+  try {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) return toast.error("User not found!");
+
+    const { userId } = JSON.parse(storedUser);
+
+    const uploadRes = await UserService.uploadProfilePic(userId, file);
+
+    if (uploadRes.isSucess) {
+      toast.success("Profile photo updated!");
+
+      const backendPath = uploadRes.value;
+      const fullUrl = getFullImageUrl(backendPath);
+       // OPTIONAL: Save updated image path in localStorage
+        const updatedUser = { ...JSON.parse(storedUser), profilePic: backendPath };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      setPreview(fullUrl);
+    } else {
+      toast.error(uploadRes.error || "Failed to upload profile photo");
     }
-  };
+
+  } catch (err: any) {
+    toast.error("Upload failed: " + err.message);
+  }
+};
 
   // Save handler now also calls Change Password API
-   const handleSave = async () => {
+  const handleSave = async () => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) return toast.error("User not found!");
 
@@ -126,7 +162,7 @@ const Profile: React.FC = () => {
                 onChange={handleImageChange}
               />
             </div>
-            <p className="mt-2 mb-0 fw-medium" style={{fontSize:"15px"}}>{username}</p>
+            <p className="mt-2 mb-0 fw-medium" style={{ fontSize: "15px" }}>{username}</p>
             <small className="text-muted">User</small>
           </div>
 
@@ -134,15 +170,15 @@ const Profile: React.FC = () => {
           <Form>
             <Row className="mb-1">
               <Form.Group as={Col} md={12} controlId="username">
-                <Form.Label className="fw-semibold" style={{fontSize:"15px"}}>Username</Form.Label>
+                <Form.Label className="fw-semibold" style={{ fontSize: "15px" }}>Username</Form.Label>
                 <Form.Control
                   type="text"
                   value={username}
                   placeholder="Enter username"
                   disabled
-                  style={{ borderRadius: "6px" ,height:"28px"}}
+                  style={{ borderRadius: "6px", height: "28px" }}
                 />
-                <Form.Text className="text-muted" style={{fontSize:"11px"}}>
+                <Form.Text className="text-muted" style={{ fontSize: "11px" }}>
                   User Name cannot be changed here.
                 </Form.Text>
               </Form.Group>
@@ -150,15 +186,15 @@ const Profile: React.FC = () => {
 
             <Row className="mb-1">
               <Form.Group as={Col} md={12} controlId="oldpassword">
-                <Form.Label className="fw-semibold" style={{fontSize:"15px"}}>Old Password</Form.Label>
+                <Form.Label className="fw-semibold" style={{ fontSize: "15px" }}>Old Password</Form.Label>
                 <Form.Control
                   type="password"
-                   value={oldPassword}
+                  value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
                   style={{
                     borderRadius: "6px",
                     backgroundColor: "#ffffff",
-                    height:"28px"
+                    height: "28px"
                   }}
                 />
 
@@ -167,7 +203,7 @@ const Profile: React.FC = () => {
 
             <Row className="mb-1">
               <Form.Group as={Col} md={12} controlId="newpassword">
-                <Form.Label className="fw-semibold" style={{fontSize:"15px"}}>New Password</Form.Label>
+                <Form.Label className="fw-semibold" style={{ fontSize: "15px" }}>New Password</Form.Label>
                 <Form.Control
                   type="password"
                   value={newPassword}
@@ -176,7 +212,7 @@ const Profile: React.FC = () => {
                   style={{
                     borderRadius: "6px",
                     backgroundColor: "#ffffff",
-                    height:"28px"
+                    height: "28px"
                   }}
                 />
 
@@ -185,7 +221,7 @@ const Profile: React.FC = () => {
 
             <Row className="mb-1">
               <Form.Group as={Col} md={12} controlId="confirmPassword">
-                <Form.Label className="fw-semibold" style={{fontSize:"15px"}}>Confirm Password</Form.Label>
+                <Form.Label className="fw-semibold" style={{ fontSize: "15px" }}>Confirm Password</Form.Label>
                 <Form.Control
                   type="password"
                   value={confirmPassword}
@@ -193,7 +229,7 @@ const Profile: React.FC = () => {
                   style={{
                     borderRadius: "6px",
                     backgroundColor: "white",
-                    height:"28px"
+                    height: "28px"
                   }}
                 />
 
@@ -207,7 +243,7 @@ const Profile: React.FC = () => {
                 className="fw-semibold px-4"
                 style={{
                   backgroundColor: "#18575A",
-                   color: "white",
+                  color: "white",
                   border: "none",
                   borderRadius: "6px",
                 }}

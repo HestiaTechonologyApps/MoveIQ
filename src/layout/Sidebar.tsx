@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Nav, Navbar, Container, Collapse } from "react-bootstrap";
 import { NavLink, useNavigate } from "react-router-dom";
 import { BsGridFill, BsPeople, BsGear, BsPersonFill, BsChevronDown, BsCashStack, BsCarFront, } from "react-icons/bs";
@@ -6,11 +6,13 @@ import { BiLogOut } from "react-icons/bi";
 import AuthService from "../services/common/Auth.services";
 import { FaCarSide, FaFileInvoice} from "react-icons/fa6";
 import  profileImg from "../assets/Images/profile.jpeg"
+import { getFullImageUrl } from "../constants/API_ENDPOINTS";
 
 const Sidebar: React.FC = () => {
     const [hovered, setHovered] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [vehiclesOpen, setVehiclesOpen] = useState(false);
+    const [profilePic, setProfilePic] = useState<string>(profileImg);
     const navigate = useNavigate();
 
     const menuItems = [
@@ -32,6 +34,31 @@ const Sidebar: React.FC = () => {
         { label: "Company", path: "/dashboard/settings/company-list" },
         { label: "Expense Types", path: "/dashboard/settings/expense-type-list" },
     ];
+
+    useEffect(() => {
+  try {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+
+      if (parsedUser?.profilePic) {
+        setProfilePic(getFullImageUrl(parsedUser.profilePic));
+      }
+    }
+
+    // 🔄 LISTEN FOR CHANGES TO PROFILE PIC
+    window.addEventListener("profile-pic-updated", () => {
+      const updatedUser = localStorage.getItem("user");
+      if (updatedUser) {
+        const parsed = JSON.parse(updatedUser);
+        setProfilePic(getFullImageUrl(parsed.profilePic));
+      }
+    });
+
+  } catch (err) {
+    console.error("Navbar image load error:", err);
+  }
+}, []);
 
     const handleLogout = () => {
         AuthService.logout();
@@ -61,7 +88,8 @@ const Sidebar: React.FC = () => {
                         </p>
                     ) : <p className="fw-bolder fs-6 text-white head-font"><span style={{fontSize:"8px"}}>MoveIQ</span></p>}
                     <img
-                        src={profileImg}
+                       // src={profileImg}
+                        src={profilePic}
                         alt="profile"
                         className="rounded-circle mb-2"
                         style={{
