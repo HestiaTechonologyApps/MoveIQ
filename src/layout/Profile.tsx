@@ -17,6 +17,7 @@ const Profile: React.FC = () => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+console.log(selectedFile);
 
   // Load username from localStorage (same as Navbar)
   useEffect(() => {

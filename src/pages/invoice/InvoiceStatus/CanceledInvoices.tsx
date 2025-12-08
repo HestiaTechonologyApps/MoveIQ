@@ -9,6 +9,7 @@ const CanceledInvoices: React.FC = () => (
         fetchMode="canceled"
         showAddButton={false}
         showBackButton={true}
+        showActions={false}
     />
 );
 

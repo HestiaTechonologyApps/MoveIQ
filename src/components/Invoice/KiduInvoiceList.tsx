@@ -11,6 +11,7 @@ interface KiduServerInvoiceListProps {
   showCustomerPopUp?: boolean
   showSearch?: boolean
   showBackButton?: boolean
+  showActions?:boolean
 }
 
 const KiduServerInvoiceList: React.FC<KiduServerInvoiceListProps> = ({
@@ -20,7 +21,8 @@ const KiduServerInvoiceList: React.FC<KiduServerInvoiceListProps> = ({
   showInvoiceButton = false,
   showCustomerPopUp = false,
   showSearch = true,
-  showBackButton = true
+  showBackButton = true,
+  showActions = true
 }) => {
   const currentYear = new Date().getFullYear();
 
@@ -97,7 +99,7 @@ const KiduServerInvoiceList: React.FC<KiduServerInvoiceListProps> = ({
       showExport={true}
       showSearch={showSearch}
       showBackButton={showBackButton}
-      showActions={true}
+      showActions={showActions}
       showTitle={true}
       fetchData={fetchData}
       rowsPerPage={10}

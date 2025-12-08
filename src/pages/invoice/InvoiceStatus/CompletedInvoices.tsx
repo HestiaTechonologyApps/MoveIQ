@@ -9,6 +9,7 @@ const CompletedInvoices: React.FC = () => (
         fetchMode="completed"
         showAddButton={false}
         showBackButton={true}
+        showActions={false}
     />
 );
 

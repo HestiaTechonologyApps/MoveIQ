@@ -1,216 +1,255 @@
-// // src/Pages/InvoiceMaster/ViewInvoiceMaster.tsx
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Container, Row, Col, Card, Table, Button, Modal } from "react-bootstrap";
+import toast, { Toaster } from "react-hot-toast";
+import KiduPrevious from "../../components/KiduPrevious";
+import KiduLoader from "../../components/KiduLoader";
+import InvoiceMasterService from "../../services/Invoice.services";
+import type { InvoiceDetailDto, InvoiceMaster } from "../../types/Invoice.types";
 
-// import React, { useState, useEffect } from "react";
-// import { Card, Table, Button, Modal, Spinner } from "react-bootstrap";
-// import { useNavigate, useParams } from "react-router-dom";
-// import { FaEdit, FaTrash } from "react-icons/fa";
-// import toast, { Toaster } from "react-hot-toast";
-// import Attachments from "../../components/KiduAttachments";
-// import AuditTrailsComponent from "../../components/KiduAuditLogs";
-// import KiduLoader from "../../components/KiduLoader";
-// import KiduPrevious from "../../components/KiduPrevious";
-// import InvoiceMasterService from "../../services/Invoice.services";
+const InvoiceView: React.FC = () => {
+  const { invoiceMasterId } = useParams();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [invoice, setInvoice] = useState<InvoiceMaster | null>(null);
+  const [invoiceDetails, setInvoiceDetails] = useState<InvoiceDetailDto[]>([]);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  // FETCH INVOICE BY ID
+  useEffect(() => {
+    const loadInvoice = async () => {
+      const id = Number(invoiceMasterId);
+      if (!id) {
+        toast.error("Invalid Invoice ID");
+        navigate(-1);
+        return;
+      }
+      try {
+        const response = await InvoiceMasterService.getInvoiceById(id);
+        console.log(response);
+        if (response.isSucess && response.value) {
+          const data = response.value;
+          setInvoice({
+            ...data,
+            invoiceDate: new Date(data.invoiceDate).toISOString().split("T")[0],
+          });
 
-// const ViewInvoice: React.FC = () => {
-//   const navigate = useNavigate();
-//   const { invoiceId } = useParams();
+          setInvoiceDetails(data.invoiceDetailDtos || []);
+        } else {
+          toast.error("Failed to load invoice");
+        }
+      } catch (err: any) {
+        toast.error(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-//   const [data, setData] = useState<any>(null);
-//   const [loading, setLoading] = useState(true);
-//   const [showConfirm, setShowConfirm] = useState(false);
-//   const [loadingDelete, setLoadingDelete] = useState(false);
+    loadInvoice();
+  }, [invoiceMasterId, navigate]);
 
-//   useEffect(() => {
-//     const fetchInvoice = async () => {
-//       try {
-//         const res = await InvoiceMasterService.getById(Number(invoiceId));
-//         if (res.isSucess && res.value) {
-//           setData(res.value);
-//         } else {
-//           toast.error("Invoice not found.");
-//         }
-//       } catch {
-//         toast.error("Failed to load invoice details.");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
+  // COMPLETE INVOICE
+  const handleComplete = async () => {
+    if (!invoice) return;
 
-//     fetchInvoice();
-//   }, [invoiceId]);
+    try {
+      const payload = {
+        ...invoice,
+        isCompleted: true,
+        isDeleted: false,
+      };
 
-//   if (loading) return <KiduLoader type="invoice details..." />;
+      const res = await InvoiceMasterService.updateInvoice(
+        invoice.invoicemasterId,
+        payload
+      );
 
-//   if (!data)
-//     return (
-//       <div className="text-center mt-5">
-//         <h5>No invoice details found.</h5>
-//         <Button className="mt-3" onClick={() => navigate(-1)}>
-//           Go Back
-//         </Button>
-//       </div>
-//     );
+      if (res.isSucess) {
+        toast.success("Invoice marked as completed!");
+        navigate("/dashboard/invoice-management");
+      } else {
+        toast.error(res.error || "Failed to update invoice");
+      }
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setShowCompleteModal(false);
+    }
+  };
 
-//   // Fields displayed in table
-//   const fields = [
-//     { key: "invoiceNum", label: "Invoice Number" },
-//     { key: "financialYearId", label: "Financial Year ID" },
-//     { key: "companyId", label: "Company ID" },
-//     { key: "totalAmount", label: "Total Amount" },
-//     {
-//       key: "createdOnString",
-//       label: "Created On",
-//       format: (value: string) =>
-//         value
-//           ? new Date(value).toLocaleDateString("en-GB", {
-//               day: "2-digit",
-//               month: "long",
-//               year: "numeric",
-//             })
-//           : "-",
-//     },
-//   ];
+  // CANCEL INVOICE
+  const handleCancel = async () => {
+    if (!invoice) return;
 
-//   const handleEdit = () =>
-//     navigate(`/dashboard/edit-invoice/${data.invoicemasterId}`);
+    try {
+      const payload = {
+        ...invoice,
+        isCompleted: false,
+        isDeleted: true,
+      };
 
-//   const handleDelete = async () => {
-//     setLoadingDelete(true);
-//     try {
-//       await InvoiceMasterService.delete(data.invoicemasterId);
-//       toast.success("Invoice deleted successfully");
+      const res = await InvoiceMasterService.updateInvoice(
+        invoice.invoicemasterId,
+        payload
+      );
 
-//       setTimeout(() => navigate("/dashboard/invoice-list"), 800);
-//     } catch {
-//       toast.error("Failed to delete invoice.");
-//     } finally {
-//       setLoadingDelete(false);
-//       setShowConfirm(false);
-//     }
-//   };
+      if (res.isSucess) {
+        toast.success("Invoice canceled!");
+        navigate("/dashboard/invoice-management/pending-invoices");
+      } else {
+        toast.error(res.error || "Failed to update invoice");
+      }
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setShowCancelModal(false);
+    }
+  };
 
-//   return (
-//     <div
-//       className="container d-flex justify-content-center align-items-center mt-5"
-//       style={{ fontFamily: "Urbanist" }}
-//     >
-//       <Card
-//         className="shadow-lg p-4 w-100"
-//         style={{
-//           maxWidth: "1300px",
-//           borderRadius: "15px",
-//           border: "none",
-//         }}
-//       >
-//         {/* Header */}
-//         <div className="d-flex justify-content-between align-items-center mb-4">
-//           <div className="d-flex align-items-center">
-//             <KiduPrevious />
-//             <h5 className="fw-bold m-0 ms-2" style={{ color: "#18575A" }}>
-//               Invoice Details
-//             </h5>
-//           </div>
+  if (loading || !invoice) return <KiduLoader type="invoice..." />;
 
-//           <div className="d-flex">
-//             <Button
-//               className="d-flex align-items-center gap-2 me-1"
-//               style={{
-//                 fontWeight: 500,
-//                 backgroundColor: "#18575A",
-//                 fontSize: "15px",
-//                 border: "none",
-//               }}
-//               onClick={handleEdit}
-//             >
-//               <FaEdit /> Edit
-//             </Button>
+  return (
+    <Container fluid className="py-3 mt-4">
+      {/* Header */}
+      <Row className="mb-3">
+        <Col className="d-flex justify-content-between align-items-center">
+          <div className="d-flex align-items-center">
+            <KiduPrevious />
+            <h4 className="mb-0 fw-bold ms-2" style={{ fontFamily: "Urbanist" }}>
+              View Invoice
+            </h4>
+          </div>
 
-//             <Button
-//               variant="danger"
-//               className="d-flex align-items-center gap-2"
-//               style={{ fontWeight: 500, fontSize: "15px" }}
-//               onClick={() => setShowConfirm(true)}
-//             >
-//               <FaTrash size={12} /> Delete
-//             </Button>
-//           </div>
-//         </div>
+          <div>
+            <Button
+              className="me-2"
+              style={{ backgroundColor: "#0e501d", border: "none" }}
+              onClick={() => setShowCompleteModal(true)}
+            >
+              Mark as Complete
+            </Button>
 
-//         {/* Title Section */}
-//         <div className="text-center mb-4">
-//           <h5 className="fw-bold mb-1">Number : {data.invoiceNum}</h5>
-//           <p
-//             className="small mb-0 fw-bold text-danger"
-//             style={{ color: "#18575A" }}
-//           >
-//              {data.invoicemasterId}
-//           </p>
-//         </div>
+            <Button
+              variant="danger"
+              onClick={() => setShowCancelModal(true)}
+            >
+              Cancel Invoice
+            </Button>
+          </div>
+        </Col>
+      </Row>
 
-//         {/* Details Table */}
-//         <div className="table-responsive">
-//           <Table bordered hover responsive className="align-middle mb-0">
-//             <tbody>
-//               {fields.map(({ key, label, format }) => {
-//                 let value = data[key];
-//                 if (format) value = format(value);
-//                 return (
-//                   <tr key={key}>
-//                     <td
-//                       style={{
-//                         width: "40%",
-//                         fontWeight: 600,
-//                         color: "#18575A",
-//                       }}
-//                     >
-//                       {label}
-//                     </td>
-//                     <td>{String(value) || "-"}</td>
-//                   </tr>
-//                 );
-//               })}
-//             </tbody>
-//           </Table>
-//         </div>
+      {/* ------------------ INVOICE INFO ------------------ */}
+      <Card className="mb-4 shadow-sm">
+        <Card.Header style={{ backgroundColor: "#18575A", color: "white" }}>
+          <h5 className="mb-0" style={{ fontFamily: "Urbanist" }}>
+            Invoice Information
+          </h5>
+        </Card.Header>
 
-//         <Attachments tableName="invoice" recordId={data.invoicemasterId} />
-//         <AuditTrailsComponent
-//           tableName="invoiceMaster"
-//           recordId={data.invoicemasterId}
-//         />
-//       </Card>
+        <Card.Body>
+          <Row>
+            <Col md={3}>
+              <p><strong>Invoice Number:</strong><br /> {invoice.invoiceNum}</p>
+            </Col>
 
-//       {/* Delete Modal */}
-//       <Modal show={showConfirm} onHide={() => setShowConfirm(false)} centered>
-//         <Modal.Header closeButton>
-//           <Modal.Title>Confirm Delete</Modal.Title>
-//         </Modal.Header>
+            <Col md={3}>
+              <p><strong>Invoice Date:</strong><br /> {invoice.createdOnString}</p>
+            </Col>
 
-//         <Modal.Body>
-//           Are you sure you want to delete this invoice?
-//         </Modal.Body>
+            <Col md={3}>
+              <p><strong>Customer Name:</strong><br /> {invoice.customerName}</p>
+            </Col>
 
-//         <Modal.Footer>
-//           <Button variant="secondary" onClick={() => setShowConfirm(false)}>
-//             Cancel
-//           </Button>
+            <Col md={3}>
+              <p><strong>Company Name:</strong><br /> {invoice.companyName}</p>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
 
-//           <Button variant="danger" onClick={handleDelete} disabled={loadingDelete}>
-//             {loadingDelete ? (
-//               <>
-//                 <Spinner animation="border" size="sm" className="me-2" />
-//                 Deleting...
-//               </>
-//             ) : (
-//               "Delete"
-//             )}
-//           </Button>
-//         </Modal.Footer>
-//       </Modal>
+      {/* ------------------ INVOICE DETAILS ------------------ */}
+      <Card className="mb-4 shadow-sm">
+        <Card.Header style={{ backgroundColor: "#fff" }}>
+          <h5 className="mb-0 fw-bold" style={{ color: "#18575A" }}>
+            Invoice Details
+          </h5>
+        </Card.Header>
 
-//       <Toaster position="top-right" />
-//     </div>
-//   );
-// };
+        <Card.Body>
+          <div className="table-responsive">
+            <Table striped bordered hover>
+              <thead className="table-light text-center">
+                <tr>
+                  <th>Trip Order ID</th>
+                  <th>Trip Code</th>
+                  <th>Amount</th>
+                  <th>Total Tax</th>
+                  <th>Discount</th>
+                  <th>Net Amount</th>
+                </tr>
+              </thead>
 
-// export default ViewInvoice;
+              <tbody className="text-center">
+                {invoiceDetails.map((d, index) => {
+                  const net = d.ammount + d.totalTax - d.discount;
+
+                  return (
+                    <tr key={index}>
+                      <td>{d.tripOrderId}</td>
+                      <td>{d.tripOrderId}</td>
+                      <td>{d.ammount}</td>
+                      <td>{d.totalTax}</td>
+                      <td>{d.discount}</td>
+                      <td><strong>{net.toFixed(2)}</strong></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </Table>
+
+            <Col md={2} className="ms-auto">
+              <p><strong>Total Amount:</strong> {invoice.totalAmount?.toFixed(2)}</p>
+            </Col>
+          </div>
+        </Card.Body>
+      </Card>
+
+      {/* ------------------ COMPLETE MODAL ------------------ */}
+      <Modal show={showCompleteModal} onHide={() => setShowCompleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Mark Invoice Complete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to mark this invoice as <strong>Completed</strong>?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowCompleteModal(false)}>Cancel</Button>
+          <Button style={{ backgroundColor: "#0e501d", border: "none" }} onClick={handleComplete}>
+            Yes, Complete
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* ------------------ CANCEL MODAL ------------------ */}
+      <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Cancel Invoice</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to <strong>Cancel</strong> this invoice?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowCancelModal(false)}>Close</Button>
+          <Button variant="danger" onClick={handleCancel}>
+            Yes, Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Toaster position="top-right" />
+    </Container>
+  );
+};
+
+export default InvoiceView;

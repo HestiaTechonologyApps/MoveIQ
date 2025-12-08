@@ -90,6 +90,7 @@ import ExpenseTypeList from './pages/settings/expenseType/List';
 import CreateExpenseType from './pages/settings/expenseType/Create';
 import EditExpenseType from './pages/settings/expenseType/Edit';
 import ViewExpenseType from './pages/settings/expenseType/View';
+import InvoiceView from './pages/invoice/View';
 
 
 function App() {
@@ -145,8 +146,8 @@ function App() {
           <Route path="invoice-management/completed-invoices" element={<CompletedInvoices />} />
           <Route path="invoice-management/canceled-invoices" element={<CanceledInvoices />} />
           <Route path="invoice-management/create-invoice" element={<InvoiceCreate />} />
-          <Route path="invoice-management/edit-invoice/:invoiceId" element={<InvoiceEdit />} />
-          {/* <Route path="view-invoice/:invoiceId" element={<ViewInvoice />} /> */}
+          <Route path="invoice-management/edit-invoice/:invoiceMasterId" element={<InvoiceEdit />} />
+          <Route path="invoice-management/view-invoice/:invoiceMasterId" element={<InvoiceView />} />
 
           {/* Expense */}
           <Route path="expense-list" element={<ExpenseList />} />

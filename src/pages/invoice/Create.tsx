@@ -10,8 +10,7 @@ import toast, { Toaster } from "react-hot-toast";
 const InvoiceCreate: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { invoiceData, customerId } = location.state || {};
-
+  const { invoiceData, customerId } = location.state || {}; 
   const [loading, setLoading] = useState(false);
   const [invoiceDetails, setInvoiceDetails] = useState<InvoiceDetailDto[]>([]);
   const [formData, setFormData] = useState<InvoiceMaster>({

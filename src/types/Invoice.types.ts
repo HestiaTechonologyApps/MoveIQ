@@ -34,6 +34,7 @@ export interface InvoiceMaster {
   totalAmount: number;
   isCompleted: boolean;
   createdOn: string;
+  createdOnString?:string;
   createdBy: string;
   isDeleted: boolean;
   invoiceDetailDtos: InvoiceDetailDto[];
@@ -58,6 +59,7 @@ export interface CreateInvoiceRequest {
   totalAmount: number;
   isCompleted: boolean;
   createdOn: string;
+  createdOnString?:string;
   createdBy: string;
   isDeleted: boolean;
   invoiceDetailDtos: InvoiceDetailDto[];

@@ -7,6 +7,7 @@ import KiduLoader from "../../components/KiduLoader";
 import { useYear } from "../../context/YearContext";
 import InvoiceMasterService from "../../services/Invoice.services";
 import KiduCard from "../../components/KiduCard";
+import FinancialCharts from "../../layout/FinancialCharts";
 
 interface CardData {
     title: string;
@@ -80,6 +81,9 @@ const InvoiceManagement: React.FC = () => {
                                 </Col>
                             ))
                         )}
+                    </Row>
+                    <Row className="g-2 justify-content-start mb-2 px-2 mt-3">
+                        <FinancialCharts />
                     </Row>
                 </Container>
             </div>

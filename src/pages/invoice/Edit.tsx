@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Container, Row, Col, Form, Table, Button, Card } from "react-bootstrap";
+import { useNavigate, useParams } from "react-router-dom";
+import { Container, Row, Col, Form, Table, Button, Card, Modal } from "react-bootstrap";
 import type { InvoiceDetailDto, InvoiceMaster } from "../../types/Invoice.types";
 import KiduLoader from "../../components/KiduLoader";
 import KiduPrevious from "../../components/KiduPrevious";
@@ -8,28 +8,25 @@ import toast, { Toaster } from "react-hot-toast";
 import InvoiceMasterService from "../../services/Invoice.services";
 
 const InvoiceEdit: React.FC = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const { invoiceId } = location.state || {};  // ← Edit page gets only invoiceId
-
+  const { invoiceMasterId } = useParams();
   const [loading, setLoading] = useState(false);
   const [invoiceDetails, setInvoiceDetails] = useState<InvoiceDetailDto[]>([]);
+  const [invoice, setInvoice] = useState<InvoiceMaster | null>(null);
   const [formData, setFormData] = useState<InvoiceMaster | null>(null);
-
-  // -----------------------------
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   // LOAD INVOICE BY ID
-  // -----------------------------
   useEffect(() => {
     const loadInvoice = async () => {
-      if (!invoiceId) {
+      if (!invoiceMasterId) {
         toast.error("Invalid Invoice ID");
         navigate(-1);
         return;
       }
-
       setLoading(true);
       try {
-        const response = await InvoiceMasterService.getInvoiceById(invoiceId);
+        const response = await InvoiceMasterService.getInvoiceById(Number(invoiceMasterId));
         if (response.isSucess && response.value) {
           const data = response.value;
 
@@ -37,7 +34,7 @@ const InvoiceEdit: React.FC = () => {
             ...data,
             invoiceDate: new Date(data.invoiceDate).toISOString().split("T")[0],
           });
-
+          setInvoice(data);
           setInvoiceDetails(data.invoiceDetailDtos || []);
         } else {
           toast.error("Failed to load invoice");
@@ -50,11 +47,8 @@ const InvoiceEdit: React.FC = () => {
     };
 
     loadInvoice();
-  }, [invoiceId, navigate]);
-
-  // -----------------------------
+  }, [invoiceMasterId, navigate]);
   // HANDLE TABLE EDIT
-  // -----------------------------
   const handleDetailChange = (
     index: number,
     field: keyof InvoiceDetailDto,
@@ -62,7 +56,6 @@ const InvoiceEdit: React.FC = () => {
   ) => {
     const updated = [...invoiceDetails];
     updated[index] = { ...updated[index], [field]: parseFloat(value) || 0 };
-
     setInvoiceDetails(updated);
     calculateTotalAmount(updated);
   };
@@ -76,15 +69,11 @@ const InvoiceEdit: React.FC = () => {
     setFormData((prev: any) => ({ ...prev, totalAmount: total }));
   };
 
-  // -----------------------------
   // UPDATE SUBMIT
-  // -----------------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData) return;
-
     setLoading(true);
-
     try {
       const payload = {
         ...formData,
@@ -110,17 +99,92 @@ const InvoiceEdit: React.FC = () => {
     }
   };
 
+  // COMPLETE INVOICE
+  const handleComplete = async () => {
+    if (!invoice) return;
+
+    try {
+      const payload = {
+        ...invoice,
+        isCompleted: true,
+        isDeleted: false,
+      };
+
+      const res = await InvoiceMasterService.updateInvoice(
+        invoice.invoicemasterId,
+        payload
+      );
+
+      if (res.isSucess) {
+        toast.success("Invoice marked as completed!");
+        navigate("/dashboard/invoice-management");
+      } else {
+        toast.error(res.error || "Failed to update invoice");
+      }
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setShowCompleteModal(false);
+    }
+  };
+
+  // CANCEL INVOICE
+  const handleCancel = async () => {
+    if (!invoice) return;
+
+    try {
+      const payload = {
+        ...invoice,
+        isCompleted: false,
+        isDeleted: true,
+      };
+
+      const res = await InvoiceMasterService.updateInvoice(
+        invoice.invoicemasterId,
+        payload
+      );
+
+      if (res.isSucess) {
+        toast.success("Invoice canceled!");
+        navigate("/dashboard/invoice-management/pending-invoices");
+      } else {
+        toast.error(res.error || "Failed to update invoice");
+      }
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setShowCancelModal(false);
+    }
+  };
   if (loading || !formData) return <KiduLoader type="invoice..." />;
 
   return (
     <Container fluid className="py-3 mt-4">
+      {/* Header */}
       <Row className="mb-3">
-        <Col>
+        <Col className="d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             <KiduPrevious />
             <h4 className="mb-0 fw-bold ms-2" style={{ fontFamily: "Urbanist" }}>
               Edit Invoice
             </h4>
+          </div>
+
+          <div>
+            <Button
+              className="me-2"
+              style={{ backgroundColor: "#0e501d", border: "none" }}
+              onClick={() => setShowCompleteModal(true)}
+            >
+              Mark as Complete
+            </Button>
+
+            <Button
+              variant="danger"
+              onClick={() => setShowCancelModal(true)}
+            >
+              Cancel Invoice
+            </Button>
           </div>
         </Col>
       </Row>
@@ -146,7 +210,7 @@ const InvoiceEdit: React.FC = () => {
               <Col md={3}>
                 <Form.Group className="mb-3">
                   <Form.Label>Invoice Date</Form.Label>
-                  <Form.Control type="date" value={formData.invoiceDate} readOnly />
+                  <Form.Control type="text" value={formData.createdOnString} readOnly />
                 </Form.Group>
               </Col>
 
@@ -192,12 +256,10 @@ const InvoiceEdit: React.FC = () => {
                 <tbody>
                   {invoiceDetails.map((detail, index) => {
                     const net = detail.ammount + detail.totalTax - detail.discount;
-
                     return (
                       <tr key={index}>
                         <td>{detail.tripOrderId}</td>
                         <td>{detail.tripOrderId}</td>
-
                         <td>
                           <Form.Control
                             type="number"
@@ -208,7 +270,6 @@ const InvoiceEdit: React.FC = () => {
                             }
                           />
                         </td>
-
                         <td>
                           <Form.Control
                             type="number"
@@ -219,7 +280,6 @@ const InvoiceEdit: React.FC = () => {
                             }
                           />
                         </td>
-
                         <td>
                           <Form.Control
                             type="number"
@@ -230,7 +290,6 @@ const InvoiceEdit: React.FC = () => {
                             }
                           />
                         </td>
-
                         <td>
                           <strong>{net.toFixed(2)}</strong>
                         </td>
@@ -239,7 +298,6 @@ const InvoiceEdit: React.FC = () => {
                   })}
                 </tbody>
               </Table>
-
               <Col md={2} className="ms-auto">
                 <Form.Group>
                   <Form.Label>Total Amount</Form.Label>
@@ -271,6 +329,38 @@ const InvoiceEdit: React.FC = () => {
           </Col>
         </Row>
       </Form>
+      {/* ------------------ COMPLETE MODAL ------------------ */}
+      <Modal show={showCompleteModal} onHide={() => setShowCompleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Mark Invoice Complete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to mark this invoice as <strong>Completed</strong>?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowCompleteModal(false)}>Cancel</Button>
+          <Button style={{ backgroundColor: "#0e501d", border: "none" }} onClick={handleComplete}>
+            Yes, Complete
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* ------------------ CANCEL MODAL ------------------ */}
+      <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Cancel Invoice</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to <strong>Cancel</strong> this invoice?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowCancelModal(false)}>Close</Button>
+          <Button variant="danger" onClick={handleCancel}>
+            Yes, Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
 
       <Toaster position="top-right" />
     </Container>
