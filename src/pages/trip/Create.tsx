@@ -375,7 +375,7 @@ const TripCreate: React.FC = () => {
             <Row className="mb-2 mx-3">
               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("pickupFrom")}</Form.Label>
-                <Form.Control size="sm" type="text" name="pickupFrom"  maxLength={100}   
+                <Form.Control size="sm" type="text" name="pickupFrom"  maxLength={50}   
                   placeholder="Enter pickup location" value={formData.pickupFrom}
                   onChange={handleChange} onBlur={() => validateField("pickupFrom", formData.pickupFrom)} />
                 {errors.pickupFrom && <div className="text-danger small">{errors.pickupFrom}</div>}

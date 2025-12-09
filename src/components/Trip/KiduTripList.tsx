@@ -110,7 +110,7 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
       // Call the update status API with correct property names
       await TripService.updatestatus({
         tripOrderId: trip.tripOrderId,
-        tripStatus: "started", // ✅ Changed from "status" to "tripStatus"
+        tripStatus: "Started", // ✅ Changed from "status" to "tripStatus"
         remark: "Trip started from upcoming list" // ✅ Added required remark field
       });
 
