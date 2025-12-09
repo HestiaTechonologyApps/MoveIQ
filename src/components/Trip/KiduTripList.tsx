@@ -146,7 +146,7 @@ const KiduServerTripList: React.FC<KiduServerTripListProps> = ({
       showStartButton={showStartButton}
       onStartTrip={showStartButton ? handleStartTrip : undefined}
       onGenerateInvoice={onGenerateInvoice}
-      onRowClick={(trip) => navigate(`/trips/view/${trip.tripOrderId}`)}
+      onRowClick={(trip) => navigate(`/dashboard/trip-view/${trip.tripOrderId}`)}
     />
   );
 };

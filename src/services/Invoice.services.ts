@@ -1,7 +1,7 @@
 // src/services/InvoiceMasterService.ts
 import { API_ENDPOINTS } from "../constants/API_ENDPOINTS";
 import type { CustomResponse } from "../types/common/ApiTypes";
-import type {CreateInvoiceRequest, GenerateInvoiceRequest, InvoiceDashboardCard, InvoiceMaster } from "../types/Invoice.types";
+import type {CreateInvoiceRequest, GenerateInvoiceRequest, InvoiceDashboardCard, InvoiceMaster, UpdateInvoiceRequest } from "../types/Invoice.types";
 import type { ServersideTrip } from "../types/ServerSideTrip.types";
 import HttpService from "./common/HttpService";
 
@@ -37,9 +37,9 @@ class InvoiceMasterService {
     );
   }
 
-  static async updateInvoice(
+   static async updateInvoice(
     id: number,
-    data: CreateInvoiceRequest
+    data: UpdateInvoiceRequest
   ): Promise<CustomResponse<InvoiceMaster>> {
     return HttpService.callApi(
       API_ENDPOINTS.INVOICE_MASTER.UPDATE(id),

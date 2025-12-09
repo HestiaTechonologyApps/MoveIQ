@@ -14,12 +14,36 @@ export interface InvoiceDashboardCard {
 export interface InvoiceDetailDto {
   invoiceDetailId: number;
   invoicemasterId: number;
+   invoiceMasterId?: number;
   tripOrderId: number;
   categoryId: number;
   ammount: number;
   totalTax: number;
   discount: number;
 }
+
+// ===================== DETAIL (USED FOR UPDATE REQUEST) =====================
+export interface InvoiceDetailUpdate {
+  invoiceDetailId?: number;
+  invoiceMasterId?: number;
+  tripOrderId?: number;
+  categoryId?: number;
+  ammount?: number;
+  totalTax?: number;
+  discount?: number;
+
+  // Update API requires these:
+  totalDiscount?: number;
+  invoiceMaster?: [];
+  invoiceDetailTaxes?: {
+    invoiceDetailTaxId?: number;
+    invoiceDetailId?: number;
+    categoryTaxId?: number;
+    categoryTaxPercentage?: number;
+    taxAmount?: number;
+  }[];
+}
+
 
 export interface InvoiceMaster {
   invoicemasterId: number;
@@ -63,4 +87,24 @@ export interface CreateInvoiceRequest {
   createdBy: string;
   isDeleted: boolean;
   invoiceDetailDtos: InvoiceDetailDto[];
+}
+
+// ===================== UPDATE INVOICE REQUEST =====================
+export interface UpdateInvoiceRequest {
+  invoiceMasterId?: number;
+  invoiceNum?: string;
+
+  financialYearId?: number;
+  companyId?: number;
+  customerId?: number;
+  totalAmount?: number;
+
+  invoiceDate?: string;
+  createdOn?: string;
+
+  isDeleted?: boolean;
+  isCompleted?: boolean;
+
+  // UPDATE uses extended details array
+  invoiceDetails?: InvoiceDetailUpdate[];
 }

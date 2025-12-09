@@ -143,10 +143,10 @@ const KiduKmAccordion = forwardRef<KiduKilometerAccordionRef, KiduKilometerAccor
 
                   <tbody>
                     {kilometers.map((k, i) => {
-                      const uniqueKey = k.tripKiloMeterId > 0 
-                        ? k.tripKiloMeterId 
+                      const uniqueKey = k.tripKiloMeterId > 0
+                        ? k.tripKiloMeterId
                         : `${k.tripOrderId}-${k.vehicleId}-${i}`;
-                      
+
                       return (
                         <tr key={uniqueKey} className="head-font text-center">
                           <td>{i + 1}</td>
@@ -154,8 +154,11 @@ const KiduKmAccordion = forwardRef<KiduKilometerAccordionRef, KiduKilometerAccor
                           <td>{k.vehicleName}</td>
                           <td>{k.driverName}</td>
                           <td>{k.waitingHours}</td>
-                          <td>{k.tripStartTimeString}</td>
-                          <td>{k.tripEndingTimeString}</td>
+                          {/* <td>{k.tripStartTimeString}</td>
+                          <td>{k.tripEndingTimeString}</td> */}
+                          <td>{k.tripStartTimeString.match(/(\d{1,2}:\d{2}\s?(AM|PM))/i)?.[0]}</td>
+                          <td>{k.tripEndingTimeString.match(/(\d{1,2}:\d{2}\s?(AM|PM))/i)?.[0]}</td>
+
                           <td>{k.tripStartReading}</td>
                           <td>{k.tripEndReading}</td>
                           <td className="fw-bold">{k.totalKM}</td>

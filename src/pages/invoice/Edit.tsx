@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Container, Row, Col, Form, Table, Button, Card, Modal } from "react-bootstrap";
-import type { InvoiceDetailDto, InvoiceMaster } from "../../types/Invoice.types";
+import type { InvoiceDetailDto, InvoiceDetailUpdate, InvoiceMaster } from "../../types/Invoice.types";
 import KiduLoader from "../../components/KiduLoader";
 import KiduPrevious from "../../components/KiduPrevious";
 import toast, { Toaster } from "react-hot-toast";
 import InvoiceMasterService from "../../services/Invoice.services";
+import { Trash2 } from "lucide-react";
 
 const InvoiceEdit: React.FC = () => {
   const navigate = useNavigate();
@@ -16,6 +17,9 @@ const InvoiceEdit: React.FC = () => {
   const [formData, setFormData] = useState<InvoiceMaster | null>(null);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+
   // LOAD INVOICE BY ID
   useEffect(() => {
     const loadInvoice = async () => {
@@ -27,12 +31,15 @@ const InvoiceEdit: React.FC = () => {
       setLoading(true);
       try {
         const response = await InvoiceMasterService.getInvoiceById(Number(invoiceMasterId));
+        console.log(response);
+
         if (response.isSucess && response.value) {
           const data = response.value;
 
           setFormData({
             ...data,
-            invoiceDate: new Date(data.invoiceDate).toISOString().split("T")[0],
+            //invoiceDate: new Date(data.invoiceDate).toISOString().split("T")[0],
+             invoiceDate: new Date(data.createdOn).toISOString().split("T")[0], // FIXED DATE
           });
           setInvoice(data);
           setInvoiceDetails(data.invoiceDetailDtos || []);
@@ -69,22 +76,69 @@ const InvoiceEdit: React.FC = () => {
     setFormData((prev: any) => ({ ...prev, totalAmount: total }));
   };
 
+  // DELETE TRIP FROM INVOICE
+  const handleDeleteClick = (index: number) => {
+    setDeleteIndex(index);
+    setShowDeleteModal(true);
+  };
+  const confirmDeleteTrip = () => {
+    if (deleteIndex !== null) {
+      const updated = invoiceDetails.filter((_, i) => i !== deleteIndex);
+      setInvoiceDetails(updated);
+      calculateTotalAmount(updated);
+      toast.success("Trip removed from invoice");
+      setShowDeleteModal(false);
+      setDeleteIndex(null);
+    }
+  };
   // UPDATE SUBMIT
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData) return;
     setLoading(true);
     try {
+
+      // Convert InvoiceDetailDto[] to InvoiceDetailUpdate[]
+      const invoiceDetailsForUpdate: InvoiceDetailUpdate[] = invoiceDetails.map(detail => ({
+        invoiceDetailId: detail.invoiceDetailId,
+        invoiceMasterId: formData.invoicemasterId || formData.invoiceMasterId || 0,
+        tripOrderId: detail.tripOrderId,
+        categoryId: detail.categoryId,
+        ammount: detail.ammount,
+        totalTax: detail.totalTax,
+        discount: detail.discount,
+        totalDiscount: detail.discount,
+        invoiceMaster: [],
+        invoiceDetailTaxes: [
+          {
+            invoiceDetailTaxId: 0,
+            invoiceDetailId: 0,
+            categoryTaxId: 0,
+            categoryTaxPercentage: 0,
+            taxAmount: 0
+          }
+        ]
+      }));
+
       const payload = {
-        ...formData,
-        invoiceDetailDtos: invoiceDetails,
+        invoiceMasterId: formData.invoicemasterId || formData.invoiceMasterId || 0,
+        invoiceNum: formData.invoiceNum,
+        financialYearId: formData.financialYearId,
+        companyId: formData.companyId,
+        customerId: formData.customerId,
+        totalAmount: formData.totalAmount,
         invoiceDate: new Date(formData.invoiceDate).toISOString(),
+        createdOn: formData.createdOn,
+        isDeleted: formData.isDeleted,
+        isCompleted: formData.isCompleted,
+        invoiceDetails: invoiceDetailsForUpdate,
       };
 
       const response = await InvoiceMasterService.updateInvoice(
-        formData.invoicemasterId,
+        formData.invoicemasterId || formData.invoiceMasterId || 0,
         payload
       );
+      console.log(response);
 
       if (response.isSucess) {
         toast.success("Invoice updated successfully!");
@@ -102,22 +156,51 @@ const InvoiceEdit: React.FC = () => {
   // COMPLETE INVOICE
   const handleComplete = async () => {
     if (!invoice) return;
-
+    setLoading(true);
     try {
+      // Convert to UpdateInvoiceRequest format
+      const invoiceDetailsForUpdate: InvoiceDetailUpdate[] = invoiceDetails.map(detail => ({
+        invoiceDetailId: detail.invoiceDetailId,
+        invoiceMasterId: invoice.invoicemasterId || invoice.invoiceMasterId || 0,
+        tripOrderId: detail.tripOrderId,
+        categoryId: detail.categoryId,
+        ammount: detail.ammount,
+        totalTax: detail.totalTax,
+        discount: detail.discount,
+        totalDiscount: detail.discount,
+        invoiceMaster: [],
+        invoiceDetailTaxes: [
+          {
+            invoiceDetailTaxId: 0,
+            invoiceDetailId: 0,
+            categoryTaxId: 0,
+            categoryTaxPercentage: 0,
+            taxAmount: 0
+          }
+        ]
+      }));
       const payload = {
-        ...invoice,
-        isCompleted: true,
+        invoiceMasterId: invoice.invoicemasterId || invoice.invoiceMasterId || 0,
+        invoiceNum: invoice.invoiceNum,
+        financialYearId: invoice.financialYearId,
+        companyId: invoice.companyId,
+        customerId: invoice.customerId,
+        totalAmount: invoice.totalAmount,
+        invoiceDate: invoice.invoiceDate,
+        createdOn: invoice.createdOn,
         isDeleted: false,
+        isCompleted: true,
+        invoiceDetails: invoiceDetailsForUpdate,
       };
 
       const res = await InvoiceMasterService.updateInvoice(
-        invoice.invoicemasterId,
+        invoice.invoicemasterId || invoice.invoiceMasterId || 0,
         payload
       );
 
       if (res.isSucess) {
         toast.success("Invoice marked as completed!");
-        navigate("/dashboard/invoice-management");
+        setTimeout(() => navigate("/dashboard/invoice-management"), 800);
       } else {
         toast.error(res.error || "Failed to update invoice");
       }
@@ -131,28 +214,58 @@ const InvoiceEdit: React.FC = () => {
   // CANCEL INVOICE
   const handleCancel = async () => {
     if (!invoice) return;
-
+    setLoading(true);
     try {
-      const payload = {
-        ...invoice,
-        isCompleted: false,
-        isDeleted: true,
-      };
+      // Convert to UpdateInvoiceRequest format
+      const invoiceDetailsForUpdate: InvoiceDetailUpdate[] = invoiceDetails.map(detail => ({
+        invoiceDetailId: detail.invoiceDetailId,
+        invoiceMasterId: invoice.invoicemasterId || invoice.invoiceMasterId || 0,
+        tripOrderId: detail.tripOrderId,
+        categoryId: detail.categoryId,
+        ammount: detail.ammount,
+        totalTax: detail.totalTax,
+        discount: detail.discount,
+        totalDiscount: detail.discount,
+        invoiceMaster: [],
+        invoiceDetailTaxes: [
+          {
+            invoiceDetailTaxId: 0,
+            invoiceDetailId: 0,
+            categoryTaxId: 0,
+            categoryTaxPercentage: 0,
+            taxAmount: 0
+          }
+        ]
+      }));
 
+      const payload = {
+        invoiceMasterId: invoice.invoicemasterId || invoice.invoiceMasterId || 0,
+        invoiceNum: invoice.invoiceNum,
+        financialYearId: invoice.financialYearId,
+        companyId: invoice.companyId,
+        customerId: invoice.customerId,
+        totalAmount: invoice.totalAmount,
+        invoiceDate: invoice.invoiceDate,
+        createdOn: invoice.createdOn,
+        isDeleted: true,
+        isCompleted: false,
+        invoiceDetails: invoiceDetailsForUpdate,
+      };
       const res = await InvoiceMasterService.updateInvoice(
-        invoice.invoicemasterId,
+        invoice.invoicemasterId || invoice.invoiceMasterId || 0,
         payload
       );
 
       if (res.isSucess) {
         toast.success("Invoice canceled!");
-        navigate("/dashboard/invoice-management/pending-invoices");
+        setTimeout(() => navigate("/dashboard/invoice-management/pending-invoices"), 800);
       } else {
         toast.error(res.error || "Failed to update invoice");
       }
     } catch (err: any) {
       toast.error(err.message);
     } finally {
+      setLoading(false);
       setShowCancelModal(false);
     }
   };
@@ -210,7 +323,13 @@ const InvoiceEdit: React.FC = () => {
               <Col md={3}>
                 <Form.Group className="mb-3">
                   <Form.Label>Invoice Date</Form.Label>
-                  <Form.Control type="text" value={formData.createdOnString} readOnly />
+                  <Form.Control
+                    type="date"
+                    value={formData.invoiceDate}
+                    onChange={(e) =>
+                      setFormData({ ...formData, invoiceDate: e.target.value })
+                    }
+                  />
                 </Form.Group>
               </Col>
 
@@ -250,9 +369,9 @@ const InvoiceEdit: React.FC = () => {
                     <th>Total Tax</th>
                     <th>Discount</th>
                     <th>Net Amount</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
-
                 <tbody>
                   {invoiceDetails.map((detail, index) => {
                     const net = detail.ammount + detail.totalTax - detail.discount;
@@ -293,6 +412,16 @@ const InvoiceEdit: React.FC = () => {
                         <td>
                           <strong>{net.toFixed(2)}</strong>
                         </td>
+
+                        <td className="text-center">
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleDeleteClick(index)}
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </td>
                       </tr>
                     );
                   })}
@@ -329,6 +458,23 @@ const InvoiceEdit: React.FC = () => {
           </Col>
         </Row>
       </Form>
+      {/* ------------------ DELETE TRIP MODAL ------------------ */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Delete Trip</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to remove this trip from the invoice?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={confirmDeleteTrip}>
+            Yes, Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
       {/* ------------------ COMPLETE MODAL ------------------ */}
       <Modal show={showCompleteModal} onHide={() => setShowCompleteModal(false)}>
         <Modal.Header closeButton>
