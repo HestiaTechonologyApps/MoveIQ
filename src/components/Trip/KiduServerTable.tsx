@@ -66,7 +66,6 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
   showKiduPopupButton = false,
   showExport = true,
   showCheckbox = false,
-  onRowClick,
   onAddClick,
   showSearch = true,
   showActions = true,
@@ -151,7 +150,7 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
   }, [searchTerm, loadData, selectedCustomer]);
 
   useEffect(() => {
-    loadData(currentPage, searchTerm);  // ✅ Always load when page changes
+    loadData(currentPage, searchTerm);
   }, [currentPage, loadData, searchTerm]);
 
   const handlePageChange = (page: number) => {
@@ -171,7 +170,6 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
 
     try {
       await onStartTrip(item);
-      // Reload data after successful start
       await loadData(currentPage, searchTerm, selectedCustomer?.customerId);
     } catch (error) {
       console.error("Failed to start trip:", error);
@@ -226,7 +224,7 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
 
   return (
     <Container fluid className="py-3 mt-4">
-     {showTitle !== false && total > 0 && (
+     {showTitle !== false && (
         <Row className="mb-2 align-items-center">
           <Col>
            <div className="d-flex">
@@ -244,100 +242,98 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
         </Row>
       )}
 
-      {total > 0 && (
-        <Row className="mb-3 align-items-center">
-          {showSearch && (
-            <Col>
-              <KiduSearchBar
-                placeholder="Search..."
-                onSearch={(val) => setSearchTerm(val)}
-                width="250px"
+      <Row className="mb-3 align-items-center">
+        {showSearch && (
+          <Col>
+            <KiduSearchBar
+              placeholder="Search..."
+              onSearch={(val) => setSearchTerm(val)}
+              width="250px"
+            />
+          </Col>
+        )}
+        {showCustomerPopUp && (
+          <Col md={3}>
+            <InputGroup>
+              <Form.Control
+                size="sm"
+                type="text"
+                readOnly
+                placeholder="Select customer"
+                value={selectedCustomer?.customerName || ""}
+                style={{
+                  height: "31px",
+                  fontSize: "13px",
+                  borderColor: "#dee2e6",
+                  borderRight: "none",
+                  boxShadow: "none",
+                  fontFamily: "Urbanist",
+                }}
               />
-            </Col>
-          )}
-          {showCustomerPopUp && (
-            <Col md={3}>
-              <InputGroup>
-                <Form.Control
-                  size="sm"
-                  type="text"
-                  readOnly
-                  placeholder="Select customer"
-                  value={selectedCustomer?.customerName || ""}
-                  style={{
-                    height: "31px",
-                    fontSize: "13px",
-                    borderColor: "#dee2e6",
-                    borderRight: "none",
-                    boxShadow: "none",
-                    fontFamily: "Urbanist",
-                  }}
-                />
+              <Button
+                size="sm"
+                onClick={() => setShowCustomerModal(true)}
+                style={{
+                  backgroundColor: "#18575A",
+                  border: "none",
+                  height: "31px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  paddingInline: "12px",
+                }}
+              >
+                <BsSearch />
+              </Button>
+              {selectedCustomer && (
                 <Button
                   size="sm"
-                  onClick={() => setShowCustomerModal(true)}
-                  style={{
-                    backgroundColor: "#18575A",
-                    border: "none",
-                    height: "31px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    paddingInline: "12px",
-                  }}
+                  variant="outline-secondary"
+                  onClick={() => setSelectedCustomer(null)}
                 >
-                  <BsSearch />
+                  Clear
                 </Button>
-                {selectedCustomer && (
-                  <Button
-                    size="sm"
-                    variant="outline-secondary"
-                    onClick={() => setSelectedCustomer(null)}
-                  >
-                    Clear
-                  </Button>
-                )}
-              </InputGroup>
-            </Col>
-          )}
+              )}
+            </InputGroup>
+          </Col>
+        )}
 
-          {showAddButton && addRoute && (
-            <Col xs="auto" className="text-end">
-              <KiduButton
-                label={`+ ${addButtonLabel}`}
-                to={addRoute}
-                className="fw-bold d-flex align-items-center text-white"
-                style={{ backgroundColor: "#18575A", border: "none", height: 45, width: 200 }}
-              />
-            </Col>
-          )}
-          {showInvoiceButton && (
-            <Col xs="auto" className="ms-auto text-end">
-              <KiduButton
-                label="Generate Invoice"
-                onClick={() => {
-        if (selectedRows.size === 0) {
-          toast.error("Please select at least one trip to generate invoice");
-          return;
-        }
-        if (!selectedCustomer) {
-          toast.error("Please select a customer");
-          return;
-        }
-        if (onGenerateInvoice) {
-          onGenerateInvoice(
-            Array.from(selectedRows),
-            selectedCustomer?.customerId
-          );
-        }
-      }}
-                className="fw-bold d-flex align-items-center text-white"
-                style={{ backgroundColor: "#18575A", border: "none", height: 45, width: 200 }}
-              />
-            </Col>
-          )}
-        </Row>
-      )}
+        {showAddButton && addRoute && (
+          <Col xs="auto" className="ms-auto text-end">
+            <KiduButton
+              label={`+ ${addButtonLabel}`}
+              to={addRoute}
+              className="fw-bold d-flex align-items-center text-white"
+              style={{ backgroundColor: "#18575A", border: "none", height: 45, width: 200 }}
+            />
+          </Col>
+        )}
+        {showInvoiceButton && (
+          <Col xs="auto" className="text-end">
+            <KiduButton
+              label="Generate Invoice"
+              onClick={() => {
+                if (selectedRows.size === 0) {
+                  toast.error("Please select at least one trip to generate invoice");
+                  return;
+                }
+                if (!selectedCustomer) {
+                  toast.error("Please select a customer");
+                  return;
+                }
+                if (onGenerateInvoice) {
+                  onGenerateInvoice(
+                    Array.from(selectedRows),
+                    selectedCustomer?.customerId
+                  );
+                }
+              }}
+              className="fw-bold d-flex align-items-center text-white"
+              style={{ backgroundColor: "#18575A", border: "none", height: 45, width: 200 }}
+            />
+          </Col>
+        )}
+      </Row>
 
       <Row>
         <Col>
@@ -403,8 +399,6 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
                   data.map((item, index) => (
                     <tr
                       key={`${item[idKey]}-${index}`}
-                      onClick={() => onRowClick?.(item)}
-                      style={{ cursor: onRowClick ? "pointer" : "default" }}
                     >
                       {showCheckbox && (
                         <td onClick={(e) => e.stopPropagation()}>
@@ -549,7 +543,6 @@ const KiduServerTable: React.FC<KiduServerTableProps> = ({
 
       {showCustomerModal && (
         <div>
-          {/* Replace this with your actual CustomerPopup component */}
           <CustomerPopup
             show={showCustomerModal}
             handleClose={() => setShowCustomerModal(false)}
