@@ -233,6 +233,7 @@ const EditExpenseType: React.FC = () => {
                 rows={3}
                 name={fields[3].name}
                 placeholder="Enter description"
+                maxLength={150}
                 value={formData[fields[3].name]}
                 onChange={handleChange}
               />

@@ -170,6 +170,7 @@ const UserEdit: React.FC = () => {
                 name="userName"
                 value={formData.userName}
                 placeholder="Enter username"
+                 maxLength={30}
                 onChange={handleChange}
                 onBlur={() => validateField("userName", formData.userName)}
               />
@@ -248,6 +249,7 @@ const UserEdit: React.FC = () => {
                 name="address"
                 value={formData.address}
                 placeholder="Enter address"
+                 maxLength={200}
                 onChange={handleChange}
                 onBlur={() => validateField("address", formData.address)}
               />

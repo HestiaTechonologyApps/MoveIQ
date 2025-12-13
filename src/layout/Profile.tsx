@@ -7,7 +7,6 @@ import UserService from "../services/settings/User.services";
 import profileImg from "../assets/Images/profile.jpeg"
 import { getFullImageUrl } from "../constants/API_ENDPOINTS";
 
-
 const Profile: React.FC = () => {
   const [username, setUsername] = useState("User");
   // const [password] = useState("********"); // cannot be edited
@@ -29,8 +28,9 @@ console.log(selectedFile);
           setUsername(parsedUser.userName);
         }
         // Load profile image (if backend stores it in localStorage)
-        if (parsedUser?.profilePic) {
-          const fullUrl = getFullImageUrl(parsedUser.profilePic);
+       // ✅ FIXED: Load profile image using correct field name
+        if (parsedUser?.profileImagePath) {
+          const fullUrl = getFullImageUrl(parsedUser.profileImagePath);
           setPreview(fullUrl);
         }
       }
@@ -66,11 +66,14 @@ console.log(selectedFile);
 
       const backendPath = uploadRes.value;
       const fullUrl = getFullImageUrl(backendPath);
-       // OPTIONAL: Save updated image path in localStorage
-        const updatedUser = { ...JSON.parse(storedUser), profilePic: backendPath };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
+      // ✅ FIXED: Update localStorage with correct field name (profileImagePath, not profilePic)
+      const updatedUser = { ...JSON.parse(storedUser), profileImagePath: backendPath };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
 
       setPreview(fullUrl);
+
+      // ✅ ADDED: Dispatch custom event to notify Navbar and Sidebar of profile pic change
+      window.dispatchEvent(new CustomEvent("profile-pic-updated"));
     } else {
       toast.error(uploadRes.error || "Failed to upload profile photo");
     }

@@ -40,7 +40,7 @@ const AddDropLocation: React.FC<AddDropLocationProps> = ({ values, onChange }) =
               <Form.Control
                 type="text"
                 placeholder={`Drop location ${index + 1}`}
-                maxLength={50} 
+                maxLength={38} 
                 className="p-2"
                 value={input || ""}
                 onChange={(e) => handleChange(index, e.target.value)}

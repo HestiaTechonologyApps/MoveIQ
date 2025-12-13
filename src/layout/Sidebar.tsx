@@ -41,22 +41,41 @@ const Sidebar: React.FC = () => {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
 
-      if (parsedUser?.profilePic) {
-        setProfilePic(getFullImageUrl(parsedUser.profilePic));
+       //Use correct field name (profileImagePath instead of profilePic)
+      if (parsedUser?.profileImagePath) {
+        setProfilePic(getFullImageUrl(parsedUser.profileImagePath));
       }
     }
 
     // 🔄 LISTEN FOR CHANGES TO PROFILE PIC
-    window.addEventListener("profile-pic-updated", () => {
+    // window.addEventListener("profile-pic-updated", () => {
+    //   const updatedUser = localStorage.getItem("user");
+    //   if (updatedUser) {
+    //     const parsed = JSON.parse(updatedUser);
+    //     setProfilePic(getFullImageUrl(parsed.profilePic));
+    //   }
+    // });
+    // ✅ FIXED: Event listener to update profile pic when changed in Profile component
+    const handleProfilePicUpdate = () => {
       const updatedUser = localStorage.getItem("user");
       if (updatedUser) {
         const parsed = JSON.parse(updatedUser);
-        setProfilePic(getFullImageUrl(parsed.profilePic));
+        // ✅ FIXED: Use correct field name
+        if (parsed?.profileImagePath) {
+          setProfilePic(getFullImageUrl(parsed.profileImagePath));
+        }
       }
-    });
+    };
+
+    window.addEventListener("profile-pic-updated", handleProfilePicUpdate);
+
+    // ✅ ADDED: Cleanup event listener on unmount
+    return () => {
+      window.removeEventListener("profile-pic-updated", handleProfilePicUpdate);
+    };
 
   } catch (err) {
-    console.error("Navbar image load error:", err);
+     console.error("Sidebar image load error:", err);
   }
 }, []);
 

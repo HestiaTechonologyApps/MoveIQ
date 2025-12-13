@@ -2,7 +2,7 @@
 
 import { API_ENDPOINTS } from "../../constants/API_ENDPOINTS";
 import type { CustomResponse } from "../../types/common/ApiTypes";
-import type { User } from "../../types/common/Auth.types";
+import type { User } from "../../types/settings/User.types";
 import HttpService from "../common/HttpService";
 
 class UserService {

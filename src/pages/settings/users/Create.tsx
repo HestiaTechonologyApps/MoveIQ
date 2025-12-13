@@ -113,6 +113,7 @@ const CreateUser: React.FC = () => {
                                 name="userName"
                                 autoComplete="new-user"
                                 placeholder="Enter username"
+                                maxLength={30}
                                 value={formData.userName}
                                 onChange={handleChange}
                                 onBlur={() => validateField("userName", formData.userName)}
@@ -131,6 +132,7 @@ const CreateUser: React.FC = () => {
                                     name="passwordHash"
                                     autoComplete="new-password"
                                     placeholder="Enter password"
+                                     maxLength={30}
                                     value={formData.passwordHash}
                                     onChange={handleChange}
                                     onBlur={() => validateField("passwordHash", formData.passwordHash)}
@@ -208,6 +210,7 @@ const CreateUser: React.FC = () => {
                                 rows={3}
                                 name="address"
                                 placeholder="Enter address"
+                                 maxLength={200}
                                 value={formData.address}
                                 onChange={handleChange}
                                 onBlur={() => validateField("address", formData.address)}

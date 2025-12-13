@@ -7,6 +7,8 @@ export interface User {
     userEmail: string;
     phoneNumber: string;
     address: string;
+    profileImagePath?: string; 
+    profilePic?: string;
     passwordHash?: string;
     oldPassword?: string;
     newPassword?: string;

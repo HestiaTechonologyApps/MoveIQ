@@ -145,6 +145,7 @@ const CreateVehicleMaintenance: React.FC = () => {
                                 type="text" 
                                 name="maintenanceType" 
                                 placeholder="Enter maintenance type" 
+                                 maxLength={50}
                                 value={formData.maintenanceType} 
                                 onChange={handleChange} 
                                 onBlur={() => validateField("maintenanceType", formData.maintenanceType)} 
@@ -160,6 +161,7 @@ const CreateVehicleMaintenance: React.FC = () => {
                                 type="text" 
                                 name="workshopName" 
                                 placeholder="Enter workshop name" 
+                                 maxLength={50}
                                 value={formData.workshopName} 
                                 onChange={handleChange} 
                                 onBlur={() => validateField("workshopName", formData.workshopName)} 
@@ -205,6 +207,7 @@ const CreateVehicleMaintenance: React.FC = () => {
                                 type="text" 
                                 name="performedBy" 
                                 placeholder="Enter performed by" 
+                                 maxLength={30}
                                 value={formData.performedBy} 
                                 onChange={handleChange} 
                                 onBlur={() => validateField("performedBy", formData.performedBy)} 
@@ -221,6 +224,7 @@ const CreateVehicleMaintenance: React.FC = () => {
                                 rows={3} 
                                 name="description" 
                                 placeholder="Enter description" 
+                                 maxLength={150}
                                 value={formData.description} 
                                 onChange={handleChange} 
                             />
@@ -235,6 +239,7 @@ const CreateVehicleMaintenance: React.FC = () => {
                                 rows={3} 
                                 name="remarks" 
                                 placeholder="Enter remarks" 
+                                maxLength={150}
                                 value={formData.remarks} 
                                 onChange={handleChange} 
                             />

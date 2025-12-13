@@ -3,6 +3,7 @@ import HttpService from "./HttpService";
 import type { CustomResponse } from "../../types/common/ApiTypes";
 import { API_ENDPOINTS } from "../../constants/API_ENDPOINTS";
 import type { ForgotPasswordRequest, LoginRequest, LoginResponse } from "../../types/common/Auth.types";
+import UserService from "../settings/User.services";
 
 class AuthService {
   static async login(credentials: LoginRequest): Promise<CustomResponse<LoginResponse>> {
@@ -27,11 +28,47 @@ class AuthService {
         }
 
         // Store user data
+        // if (response.value.user) {
+        //   const userString = JSON.stringify(response.value.user);
+        //   localStorage.setItem('user', userString);
+        //   console.log('User stored:', localStorage.getItem('user') !== null);
+        //   console.log('Stored user data:', localStorage.getItem('user'));
+        // }
+         // ✅ ADDED: Fetch complete user profile from database to get profileImagePath
         if (response.value.user) {
-          const userString = JSON.stringify(response.value.user);
-          localStorage.setItem('user', userString);
-          console.log('User stored:', localStorage.getItem('user') !== null);
-          console.log('Stored user data:', localStorage.getItem('user'));
+          try {
+            const userId = response.value.user.userId;
+            console.log('Fetching complete user profile for userId:', userId);
+            
+            // Fetch user profile from database
+            const userProfileResponse = await UserService.getById(userId);
+            
+            if (userProfileResponse.isSucess && userProfileResponse.value) {
+              // ✅ Merge login user data with complete profile data from database
+              const completeUserData = {
+                ...response.value.user,
+                profileImagePath: userProfileResponse.value.profileImagePath || "",
+                address: userProfileResponse.value.address || response.value.user.address,
+                phoneNumber: userProfileResponse.value.phoneNumber || response.value.user.phoneNumber,
+              };
+              
+              const userString = JSON.stringify(completeUserData);
+              localStorage.setItem('user', userString);
+              console.log('Complete user data stored with profileImagePath:', completeUserData.profileImagePath);
+              console.log('Stored user data:', localStorage.getItem('user'));
+            } else {
+              // Fallback: store original user data if profile fetch fails
+              const userString = JSON.stringify(response.value.user);
+              localStorage.setItem('user', userString);
+              console.log('User stored (fallback):', localStorage.getItem('user') !== null);
+            }
+          } catch (profileError) {
+            console.error('Error fetching user profile from database:', profileError);
+            // Fallback: store original user data
+            const userString = JSON.stringify(response.value.user);
+            localStorage.setItem('user', userString);
+            console.log('User stored (error fallback):', localStorage.getItem('user') !== null);
+          }
         }
 
         // Store token expiry

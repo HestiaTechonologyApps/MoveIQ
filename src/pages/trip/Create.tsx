@@ -238,10 +238,8 @@ const TripCreate: React.FC = () => {
             <h6 className="mb-0 p-2 fw-medium fs-5">Start Your Booking</h6>
           </div>
         </Card.Header>
-
         <Card.Body style={{ padding: "1rem" }}>
           <Form onSubmit={handleSubmit}>
-
             {/* CUSTOMER */}
             <Row className="mb-2 mx-3">
               <Col md={6}>
@@ -256,7 +254,6 @@ const TripCreate: React.FC = () => {
                 </InputGroup>
                 {errors.customerName && <div className="text-danger small">{errors.customerName}</div>}
               </Col>
-
               {/* Department */}
               <Col md={3}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("departmentName")}</Form.Label>
@@ -266,27 +263,22 @@ const TripCreate: React.FC = () => {
                   value={formData.departmentName}
                   onChange={(e) => {
                     const selectedName = e.target.value;
-
                     setFormData((prev: any) => ({
                       ...prev,
                       departmentName: selectedName   // store NAME only
                     }));
-
                     if (errors.departmentName)
                       setErrors((p: any) => ({ ...p, departmentName: "" }));
                   }}
                   onBlur={() => validateField("departmentName", formData.departmentName)}
                 >
                   <option value="">Select Department</option>
-
                   {departments.map(d => (
                     <option key={d.departmentId} value={d.departmentName}>
                       {d.departmentName}
                     </option>
                   ))}
-
                 </Form.Select>
-
                 {errors.departmentName && <div className="text-danger small">{errors.departmentName}</div>}
               </Col>
               {/* Received via */}
@@ -370,17 +362,18 @@ const TripCreate: React.FC = () => {
                 </Row>
               </Col>
             </Row>
+            
 
-            {/* PICKUP / DRIVER */}
+            {/* PICKUP*/}
             <Row className="mb-2 mx-3">
               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("pickupFrom")}</Form.Label>
-                <Form.Control size="sm" type="text" name="pickupFrom"  maxLength={50}   
+                <Form.Control size="sm" type="text" name="pickupFrom" maxLength={38}
                   placeholder="Enter pickup location" value={formData.pickupFrom}
                   onChange={handleChange} onBlur={() => validateField("pickupFrom", formData.pickupFrom)} />
                 {errors.pickupFrom && <div className="text-danger small">{errors.pickupFrom}</div>}
               </Col>
-
+              {/* driver */}
               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("driverName")}</Form.Label>
                 <InputGroup>
@@ -444,14 +437,14 @@ const TripCreate: React.FC = () => {
 
               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("paymentDetails")}</Form.Label>
-                <Form.Control as="textarea" rows={2} name="paymentDetails"
+                <Form.Control as="textarea" rows={2} name="paymentDetails" maxLength={100}
                   value={formData.paymentDetails} onChange={handleChange}
                   onBlur={() => validateField("paymentDetails", formData.paymentDetails)} />
               </Col>
 
               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("details")}</Form.Label>
-                <Form.Control as="textarea" rows={2} name="details"
+                <Form.Control as="textarea" rows={2} name="details" maxLength={200}
                   value={formData.details} onChange={handleChange}
                   onBlur={() => validateField("details", formData.details)} />
               </Col>

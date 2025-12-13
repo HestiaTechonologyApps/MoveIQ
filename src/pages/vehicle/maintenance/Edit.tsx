@@ -58,7 +58,8 @@ const EditVehicleMaintenance: React.FC = () => {
             performedBy: d.performedBy || "",
             description: d.description || "",
             remarks: d.remarks || "",
-            createdBy:d.createdBy || ""
+            createdBy: d.createdBy || "",
+            createdDate: d.createdDate || ""
           };
           setFormData(loadedValues);
           setInitialValues(loadedValues);
@@ -122,6 +123,8 @@ const EditVehicleMaintenance: React.FC = () => {
       const payload = {
         ...formData,
         vehicleMaintenanceRecordId: Number(maintenanceId),
+        createdBy: formData.createdBy,      // KEEP ORIGINAL
+        createdDate: formData.createdDate,  // KEEP ORIGINAL IMPORTANT!
         updatedBy: loggedUser.userEmail || "User",
         updatedDate: new Date().toISOString()
       };
@@ -197,6 +200,7 @@ const EditVehicleMaintenance: React.FC = () => {
                 type="text"
                 name="maintenanceType"
                 placeholder="Enter maintenance type"
+                maxLength={50}
                 value={formData.maintenanceType}
                 onChange={handleChange}
                 onBlur={() => validateField("maintenanceType", formData.maintenanceType)}
@@ -212,6 +216,7 @@ const EditVehicleMaintenance: React.FC = () => {
                 type="text"
                 name="workshopName"
                 placeholder="Enter workshop name"
+                maxLength={50}
                 value={formData.workshopName}
                 onChange={handleChange}
                 onBlur={() => validateField("workshopName", formData.workshopName)}
@@ -257,6 +262,7 @@ const EditVehicleMaintenance: React.FC = () => {
                 type="text"
                 name="performedBy"
                 placeholder="Enter performed by"
+                maxLength={30}
                 value={formData.performedBy}
                 onChange={handleChange}
                 onBlur={() => validateField("performedBy", formData.performedBy)}
@@ -273,6 +279,7 @@ const EditVehicleMaintenance: React.FC = () => {
                 rows={3}
                 name="description"
                 placeholder="Enter description"
+                maxLength={150}
                 value={formData.description}
                 onChange={handleChange}
               />
@@ -287,6 +294,7 @@ const EditVehicleMaintenance: React.FC = () => {
                 rows={3}
                 name="remarks"
                 placeholder="Enter remarks"
+                maxLength={150}
                 value={formData.remarks}
                 onChange={handleChange}
               />

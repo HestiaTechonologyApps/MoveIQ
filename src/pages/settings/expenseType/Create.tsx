@@ -161,6 +161,7 @@ const CreateExpenseType: React.FC = () => {
                                 rows={3}
                                 name="description"
                                 placeholder="Enter description"
+                                maxLength={150}
                                 value={formData.description}
                                 onChange={handleChange}
                                 onBlur={() => validateField("description", formData.description)}

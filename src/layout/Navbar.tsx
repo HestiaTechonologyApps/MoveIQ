@@ -30,18 +30,30 @@ const NavbarComponent: React.FC = () => {
           setUsername(parsedUser.userName);
         });
       }
-       if (parsedUser?.profilePic) {
-        setProfilePic(getFullImageUrl(parsedUser.profilePic));
+       // ✅ FIXED: Use correct field name (profileImagePath instead of profilePic)
+       if (parsedUser?.profileImagePath) {
+        setProfilePic(getFullImageUrl(parsedUser.profileImagePath));
       }
     }
-     // 🔄 LISTEN FOR CHANGES TO PROFILE PIC
-    window.addEventListener("profile-pic-updated", () => {
+    
+    // ✅ FIXED: Event listener to update profile pic when changed in Profile component
+    const handleProfilePicUpdate = () => {
       const updatedUser = localStorage.getItem("user");
       if (updatedUser) {
         const parsed = JSON.parse(updatedUser);
-        setProfilePic(getFullImageUrl(parsed.profilePic));
+        // ✅ FIXED: Use correct field name
+        if (parsed?.profileImagePath) {
+          setProfilePic(getFullImageUrl(parsed.profileImagePath));
+        }
       }
-    });
+    };
+
+    window.addEventListener("profile-pic-updated", handleProfilePicUpdate);
+
+    // ✅ ADDED: Cleanup event listener on unmount
+    return () => {
+      window.removeEventListener("profile-pic-updated", handleProfilePicUpdate);
+    };
   } catch (error) {
     console.error("Error parsing user from localStorage:", error);
   }

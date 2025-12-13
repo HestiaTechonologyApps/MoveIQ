@@ -486,7 +486,7 @@ const TripEdit: React.FC = () => {
             <Row className="mb-2 mx-3">
               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("pickupFrom")}</Form.Label>
-                <Form.Control size="sm" type="text" name="pickupFrom" maxLength={50} className="p-2"
+                <Form.Control size="sm" type="text" name="pickupFrom" maxLength={38} className="p-2"
                   placeholder="Enter pickup location" value={formData.pickupFrom}
                   onChange={handleChange} onBlur={() => validateField("pickupFrom", formData.pickupFrom)} />
                 {errors.pickupFrom && <div className="text-danger small">{errors.pickupFrom}</div>}
@@ -555,13 +555,13 @@ const TripEdit: React.FC = () => {
             <Row className="mb-2 mx-3">
               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("paymentDetails")}</Form.Label>
-                <Form.Control as="textarea" rows={2} name="paymentDetails"
+                <Form.Control as="textarea" rows={2} name="paymentDetails" maxLength={100}
                   value={formData.paymentDetails} onChange={handleChange}
                   onBlur={() => validateField("paymentDetails", formData.paymentDetails)} />
               </Col>
               <Col md={6}>
                 <Form.Label className="mb-1 fw-medium">{getLabel("details")}</Form.Label>
-                <Form.Control as="textarea" rows={2} name="details"
+                <Form.Control as="textarea" rows={2} name="details" maxLength={200}
                   value={formData.details} onChange={handleChange}
                   onBlur={() => validateField("details", formData.details)} />
               </Col>

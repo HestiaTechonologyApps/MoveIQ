@@ -92,16 +92,28 @@ const KmModal: React.FC<KmModalProps> = ({ show, onHide, onSuccess, tripId, edit
   };
 
   const timesList = generate12HourTimes();
-
+ 
+  // This function now creates proper datetime strings without timezone conversion issues
   const convertTo24HourISO = (time: string, ampm: string) => {
     if (!time) return new Date().toISOString();
+    
     const [h, m] = time.split(":");
     let hour = parseInt(h);
+    
+    // Convert to 24-hour format
     if (ampm === "PM" && hour !== 12) hour += 12;
     if (ampm === "AM" && hour === 12) hour = 0;
-    const d = new Date();
-    d.setHours(hour, parseInt(m), 0, 0);
-    return d.toISOString();
+    
+    // Create date string in local timezone format
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hourStr = String(hour).padStart(2, '0');
+    const minStr = String(parseInt(m)).padStart(2, '0');
+    
+    // Return in ISO format without timezone conversion
+    return `${year}-${month}-${day}T${hourStr}:${minStr}:00`;
   };
 
   const resetForm = () => {

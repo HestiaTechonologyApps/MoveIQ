@@ -53,7 +53,7 @@ const ForgotPassword: React.FC = () => {
       
 
       if (response.isSucess) {
-        toast.success("Password reset link sent successfully!");
+        toast.success( response.customMessage || "Password reset link sent successfully!");
         setEmail("");
         setSubmitted(false);
         setError("");
