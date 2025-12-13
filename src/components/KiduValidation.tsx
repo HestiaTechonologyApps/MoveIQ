@@ -78,8 +78,8 @@ export const KiduValidation = {
     if (rules.type === "number" && strVal && isNaN(Number(strVal)))
       return { isValid: false, message: `${label} must be a number.` };
 
-    if (rules.type === "email" && strVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(strVal))
-      return { isValid: false, message: "Please enter a valid email address." };
+    if (rules.type === "email" && strVal && !/^[^\s@]+@gmail\.com$/.test(strVal))
+      return { isValid: false, message: "Please enter a valid Gmail address." };
 
     if (rules.type === "url" && strVal && !/^(https?:\/\/)?([\w\d-]+\.)+\w{2,}(\/.*)?$/.test(strVal))
       return { isValid: false, message: "Please enter a valid website URL." };
