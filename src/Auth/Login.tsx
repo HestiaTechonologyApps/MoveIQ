@@ -75,7 +75,7 @@ const styles = {
     input: {
         padding: '12px 16px',
         backgroundColor: '#f9fafb',
-        border: '1px solid #e5e7eb',
+       // border: '1px solid #e5e7eb',
         fontSize: '15px',
     },
     primaryBtn: {

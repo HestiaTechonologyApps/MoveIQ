@@ -100,19 +100,23 @@ const CreateExpense: React.FC = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (!validateForm()) return;
-
+    const loggedUser = JSON.parse(localStorage.getItem("user") || "{}");
     try {
       const expenseData = {
         expenseTypeId: Number(formData.expenseTypeId),
         remark: formData.remark,
         createdOn: formData.createdOn,
+        createdBy: loggedUser.userEmail || "User",
         amount: Number(formData.amount),
         paymentMode: formData.paymentMode,
         relatedEntityId: Number(formData.relatedEntityId),
         relatedEntityType: formData.relatedEntityType
       };
-
+      console.log(expenseData);
+      
       const response = await ExpenseMasterService.create(expenseData);
+      console.log(response);
+      
       if (response.isSucess) {
         toast.success("Expense added successfully!");
         setTimeout(() => navigate("/dashboard/expense-list"), 1500);
@@ -148,7 +152,7 @@ const CreateExpense: React.FC = () => {
             {/* EXPENSE TYPE */}
             <Col md={6} className="mb-3">
               <Form.Label className="fw-semibold">
-               {fields[0].rules.label}  <span className="text-danger">*</span>
+                {fields[0].rules.label}  <span className="text-danger">*</span>
               </Form.Label>
 
               <Form.Select
@@ -175,7 +179,7 @@ const CreateExpense: React.FC = () => {
             {/* DATE */}
             <Col md={6} className="mb-3">
               <Form.Label className="fw-semibold">
-               {fields[1].rules.label}  <span className="text-danger">*</span>
+                {fields[1].rules.label}  <span className="text-danger">*</span>
               </Form.Label>
 
               <Form.Control
@@ -241,7 +245,7 @@ const CreateExpense: React.FC = () => {
             {/* RELATED ENTITY TYPE */}
             <Col md={6} className="mb-3">
               <Form.Label className="fw-semibold">
-               {fields[4].rules.label}  <span className="text-danger">*</span>
+                {fields[4].rules.label}  <span className="text-danger">*</span>
               </Form.Label>
 
               <Form.Control
