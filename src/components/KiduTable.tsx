@@ -120,7 +120,7 @@ const KiduTable: React.FC<KiduTableProps> = ({
   return (
     <Container fluid className="py-3 mt-4">
       {/* Conditionally show title/subtitle row */}
-      {showTitle !== false && data.length > 0 && (
+      {showTitle !== false && (
         <Row className="mb-2 align-items-center">
           <Col>
             <h4 className="mb-0 fw-bold" style={{ fontFamily: "Urbanist" }}>{title}</h4>
@@ -129,7 +129,7 @@ const KiduTable: React.FC<KiduTableProps> = ({
         </Row>
       )}
 
-      {data.length > 0 && (
+      
         <Row className="mb-3 align-items-center">
           {showSearch && (
             <Col>
@@ -154,7 +154,7 @@ const KiduTable: React.FC<KiduTableProps> = ({
             </Col>
           )}
         </Row>
-      )}
+      
 
       <Row>
         <Col>
