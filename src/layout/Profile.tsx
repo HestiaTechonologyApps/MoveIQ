@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import type { ChangeEvent } from "react";
-import { Card, Button, Form, Row, Col } from "react-bootstrap";
+import { Card, Button, Form, Row, Col, InputGroup } from "react-bootstrap";
 import toast, { Toaster } from "react-hot-toast";
 import { BsUpload } from "react-icons/bs";
 import UserService from "../services/settings/User.services";
 import profileImg from "../assets/Images/profile.jpeg"
 import { getFullImageUrl } from "../constants/API_ENDPOINTS";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 const Profile: React.FC = () => {
   const [username, setUsername] = useState("User");
@@ -16,7 +17,11 @@ const Profile: React.FC = () => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-console.log(selectedFile);
+  const [showOld, setShowOld] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  console.log(selectedFile);
 
   // Load username from localStorage (same as Navbar)
   useEffect(() => {
@@ -28,13 +33,13 @@ console.log(selectedFile);
           setUsername(parsedUser.userName);
         }
         // Load profile image (if backend stores it in localStorage)
-       // ✅ FIXED: Load profile image using correct field name
+        // ✅ FIXED: Load profile image using correct field name
         if (parsedUser?.profileImagePath) {
           const fullUrl = getFullImageUrl(parsedUser.profileImagePath);
           setPreview(fullUrl);
         }
       }
-      
+
     } catch (error) {
       console.error("Error parsing user from localStorage:", error);
     }
@@ -42,46 +47,46 @@ console.log(selectedFile);
 
   // Handle new image selection
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  setSelectedFile(file);
+    setSelectedFile(file);
 
-  // Preview instantly
-  const reader = new FileReader();
-  reader.onloadend = () => setPreview(reader.result as string);
-  reader.readAsDataURL(file);
+    // Preview instantly
+    const reader = new FileReader();
+    reader.onloadend = () => setPreview(reader.result as string);
+    reader.readAsDataURL(file);
 
-  // Upload immediately (no Save button needed)
-  try {
-    const storedUser = localStorage.getItem("user");
-    if (!storedUser) return toast.error("User not found!");
+    // Upload immediately (no Save button needed)
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (!storedUser) return toast.error("User not found!");
 
-    const { userId } = JSON.parse(storedUser);
+      const { userId } = JSON.parse(storedUser);
 
-    const uploadRes = await UserService.uploadProfilePic(userId, file);
+      const uploadRes = await UserService.uploadProfilePic(userId, file);
 
-    if (uploadRes.isSucess) {
-      toast.success("Profile photo updated!");
+      if (uploadRes.isSucess) {
+        toast.success("Profile photo updated!");
 
-      const backendPath = uploadRes.value;
-      const fullUrl = getFullImageUrl(backendPath);
-      // ✅ FIXED: Update localStorage with correct field name (profileImagePath, not profilePic)
-      const updatedUser = { ...JSON.parse(storedUser), profileImagePath: backendPath };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
+        const backendPath = uploadRes.value;
+        const fullUrl = getFullImageUrl(backendPath);
+        // ✅ FIXED: Update localStorage with correct field name (profileImagePath, not profilePic)
+        const updatedUser = { ...JSON.parse(storedUser), profileImagePath: backendPath };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      setPreview(fullUrl);
+        setPreview(fullUrl);
 
-      // ✅ ADDED: Dispatch custom event to notify Navbar and Sidebar of profile pic change
-      window.dispatchEvent(new CustomEvent("profile-pic-updated"));
-    } else {
-      toast.error(uploadRes.error || "Failed to upload profile photo");
+        // ✅ ADDED: Dispatch custom event to notify Navbar and Sidebar of profile pic change
+        window.dispatchEvent(new CustomEvent("profile-pic-updated"));
+      } else {
+        toast.error(uploadRes.error || "Failed to upload profile photo");
+      }
+
+    } catch (err: any) {
+      toast.error("Upload failed: " + err.message);
     }
-
-  } catch (err: any) {
-    toast.error("Upload failed: " + err.message);
-  }
-};
+  };
 
   // Save handler now also calls Change Password API
   const handleSave = async () => {
@@ -191,7 +196,7 @@ console.log(selectedFile);
             <Row className="mb-1">
               <Form.Group as={Col} md={12} controlId="oldpassword">
                 <Form.Label className="fw-semibold" style={{ fontSize: "15px" }}>Old Password</Form.Label>
-                <Form.Control
+                {/* <Form.Control
                   type="password"
                   value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
@@ -200,7 +205,22 @@ console.log(selectedFile);
                     backgroundColor: "#ffffff",
                     height: "28px"
                   }}
-                />
+                /> */}
+                <InputGroup>
+                  <Form.Control
+                    type={showOld ? "text" : "password"}
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    style={{ borderRadius: "6px", height: "28px" }}
+                  />
+                  <InputGroup.Text
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setShowOld(!showOld)}
+                  >
+                    {showOld ? <AiFillEyeInvisible /> : <AiFillEye />}
+                  </InputGroup.Text>
+                </InputGroup>
+
 
               </Form.Group>
             </Row>
@@ -208,7 +228,7 @@ console.log(selectedFile);
             <Row className="mb-1">
               <Form.Group as={Col} md={12} controlId="newpassword">
                 <Form.Label className="fw-semibold" style={{ fontSize: "15px" }}>New Password</Form.Label>
-                <Form.Control
+                {/* <Form.Control
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
@@ -218,7 +238,23 @@ console.log(selectedFile);
                     backgroundColor: "#ffffff",
                     height: "28px"
                   }}
-                />
+                /> */}
+
+                <InputGroup>
+                  <Form.Control
+                    type={showNew ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    style={{ borderRadius: "6px", height: "28px" }}
+                  />
+                  <InputGroup.Text
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setShowNew(!showNew)}
+                  >
+                    {showNew ? <AiFillEyeInvisible /> : <AiFillEye />}
+                  </InputGroup.Text>
+                </InputGroup>
+
 
               </Form.Group>
             </Row>
@@ -226,7 +262,7 @@ console.log(selectedFile);
             <Row className="mb-1">
               <Form.Group as={Col} md={12} controlId="confirmPassword">
                 <Form.Label className="fw-semibold" style={{ fontSize: "15px" }}>Confirm Password</Form.Label>
-                <Form.Control
+                {/* <Form.Control
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -235,7 +271,22 @@ console.log(selectedFile);
                     backgroundColor: "white",
                     height: "28px"
                   }}
-                />
+                /> */}
+
+                <InputGroup>
+                  <Form.Control
+                    type={showConfirm ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    style={{ borderRadius: "6px", height: "28px" }}
+                  />
+                  <InputGroup.Text
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setShowConfirm(!showConfirm)}
+                  >
+                    {showConfirm ? <AiFillEyeInvisible /> : <AiFillEye />}
+                  </InputGroup.Text>
+                </InputGroup>
 
               </Form.Group>
             </Row>
