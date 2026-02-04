@@ -7,11 +7,16 @@ import KiduLoader from "../../../components/KiduLoader";
 
 const columns = [
     { label: "Vehicle ID", key: "vehicleId" },
-    { label: "Registration Number", key: "registrationNumber" },
+
+    { label: "Make", key: "make" },
+    { label: "year", key: "year" },
     { label: "Vehicle Type", key: "vehicleType" },
+    { label: "Chasis Number", key: "chassisNumber" },
+    { label: "Registration Number", key: "registrationNumber" },
     { label: "Registration Expiry", key: "registrationExpiryString" },
     { label: "Current Status", key: "currentStatus" },
     { label: "Location", key: "location" },
+
 ]
 
 const VehicleList: React.FC = () => {
@@ -24,7 +29,7 @@ const VehicleList: React.FC = () => {
             setLoading(true);
             const response = await VehicleService.getAll();
             console.log(response);
-            
+
             console.log(response);
             if (response.isSucess && response.value) {
                 setVehicles(response.value);
