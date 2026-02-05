@@ -55,6 +55,7 @@ const VehicleView: React.FC = () => {
     { key: "engineNumber", label: "Engine Number" },
     { key: "vehicleType", label: "Vehicle Type" },
     { key: "registrationExpiryString", label: "Registration Expiry" },
+    { key: "insuranceExpiryString", label: "Insurance Expiry" },
     { key: "currentStatus", label: "Current Status" },
     { key: "location", label: "Location" }
   ];

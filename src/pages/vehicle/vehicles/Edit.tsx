@@ -44,6 +44,7 @@ const VehicleEdit: React.FC = () => {
         { name: "engineNumber", rules: { required: true, type: "text", label: "Engine Number" } },
         { name: "vehicleType", rules: { required: true, type: "text", label: "Vehicle Type" } },
         { name: "registrationExpiry", rules: { required: true, type: "date", label: "Registration Expiry" } },
+        { name: "insuranceExpiry", rules: { required: true, type: "date", label: "Insurance Expiry" } },
         { name: "currentStatus", rules: { required: true, type: "text", label: "Current Status" } },
         { name: "location", rules: { required: true, type: "text", label: "Location" } },
     ];
@@ -53,7 +54,7 @@ const VehicleEdit: React.FC = () => {
             try {
                 const res = await VehicleService.getById(Number(vehicleId));
                 console.log(res);
-                
+
                 if (res.isSucess && res.value) {
                     const d: Vehicle = res.value;
 
@@ -67,6 +68,9 @@ const VehicleEdit: React.FC = () => {
                         vehicleType: d.vehicleType || "",
                         registrationExpiry: d.registrationExpiry
                             ? d.registrationExpiry.split("T")[0]
+                            : "",
+                        insuranceExpiry: d.insuranceExpiry
+                            ? d.insuranceExpiry.split("T")[0]
                             : "",
                         currentStatus: d.currentStatus || "",
                         location: d.location || "",
@@ -129,6 +133,7 @@ const VehicleEdit: React.FC = () => {
                 engineNumber: formData.engineNumber,
                 vehicleType: formData.vehicleType,
                 registrationExpiry: formData.registrationExpiry || null,
+                insuranceExpiry: formData.insuranceExpiry || null,
                 currentStatus: formData.currentStatus,
                 location: formData.location,
                 createdDate: formData.createdDate,
@@ -230,19 +235,28 @@ const VehicleEdit: React.FC = () => {
 
                         <Col md={6} className="mb-3">
                             <Form.Label className="fw-semibold">{fields[8].rules.label} {fields[8].rules.required ? <span className="text-danger">*</span> : ""}</Form.Label>
-                            <Form.Select name={fields[8].name} value={formData[fields[8].name]} onChange={handleChange} onBlur={() => validateField(fields[8].name, formData[fields[8].name])}>
-                                <option value="">Select Status</option>
-                                {statusOptions.map((s, i) => <option key={i} value={s.value}>{s.label}</option>)}
-                            </Form.Select>
+                            <Form.Control type="date" name={fields[8].name}
+                                value={formData[fields[8].name] || ""}
+                                onChange={handleChange}
+                                onBlur={() => validateField(fields[8].name, formData[fields[8].name])} />
                             {errors[fields[8].name] && <small className="text-danger">{errors[fields[8].name]}</small>}
                         </Col>
 
                         <Col md={6} className="mb-3">
                             <Form.Label className="fw-semibold">{fields[9].rules.label} {fields[9].rules.required ? <span className="text-danger">*</span> : ""}</Form.Label>
-                            <Form.Control type="text" name={fields[9].name} placeholder="Enter location"
-                                value={formData[fields[9].name]} onChange={handleChange}
-                                onBlur={() => validateField(fields[9].name, formData[fields[9].name])} />
+                            <Form.Select name={fields[9].name} value={formData[fields[9].name]} onChange={handleChange} onBlur={() => validateField(fields[9].name, formData[fields[9].name])}>
+                                <option value="">Select Status</option>
+                                {statusOptions.map((s, i) => <option key={i} value={s.value}>{s.label}</option>)}
+                            </Form.Select>
                             {errors[fields[9].name] && <small className="text-danger">{errors[fields[9].name]}</small>}
+                        </Col>
+
+                        <Col md={6} className="mb-3">
+                            <Form.Label className="fw-semibold">{fields[10].rules.label} {fields[10].rules.required ? <span className="text-danger">*</span> : ""}</Form.Label>
+                            <Form.Control type="text" name={fields[10].name} placeholder="Enter location"
+                                value={formData[fields[10].name]} onChange={handleChange}
+                                onBlur={() => validateField(fields[10].name, formData[fields[10].name])} />
+                            {errors[fields[10].name] && <small className="text-danger">{errors[fields[10].name]}</small>}
                         </Col>
                     </Row>
 

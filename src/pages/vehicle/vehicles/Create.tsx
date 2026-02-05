@@ -16,7 +16,7 @@ const CreateVehicle: React.FC = () => {
         value: (2000 + i).toString(),
         label: (2000 + i).toString(),
     }));
-    const statusOptions = ["Active","Operational", "Non-Operational", "Scrap"].map(
+    const statusOptions = ["Active", "Operational", "Non-Operational", "Scrap"].map(
         (s) => ({ value: s, label: s })
     );
     // FIELD DEFINITIONS
@@ -29,6 +29,7 @@ const CreateVehicle: React.FC = () => {
         { name: "engineNumber", rules: { required: true, type: "text", label: "Engine Number" } },
         { name: "vehicleType", rules: { required: true, type: "text", label: "Vehicle Type" } },
         { name: "registrationExpiry", rules: { required: true, type: "date", label: "Registration Expiry" } },
+        { name: "insuranceExpiry", rules: { required: true, type: "date", label: "Insurance Expiry" } },
         { name: "currentStatus", rules: { required: true, type: "select", label: "Current Status" } },
         { name: "location", rules: { required: true, type: "text", label: "Location" } },
     ];
@@ -265,11 +266,33 @@ const CreateVehicle: React.FC = () => {
                             )}
                         </Col>
 
+                        {/* Insurance Expiry */}
+                        <Col md={6} className="mb-3">
+                            <Form.Label className="fw-semibold">{fields[8].rules.label || "Insurance Expiry"} {fields[8].rules.required ? <span className="text-danger">*</span> : ""}</Form.Label>
+                            <Form.Control
+                                type="date"
+                                name={fields[8].name}
+                                value={formData.insuranceExpiry}
+                                onChange={handleChange}
+                                onBlur={() =>
+                                    validateField(
+                                        "insuranceExpiry",
+                                        formData.insuranceExpiry
+                                    )
+                                }
+                            />
+                            {errors.insuranceExpiry && (
+                                <small className="text-danger">
+                                    {errors.insuranceExpiry}
+                                </small>
+                            )}
+                        </Col>
+
                         {/* Status Dropdown */}
                         <Col md={6} className="mb-3">
-                            <Form.Label className="fw-semibold">{fields[8].rules.label || "Current Status"} {fields[8].rules.required ? <span className="text-danger">*</span> : ""}</Form.Label>
+                            <Form.Label className="fw-semibold">{fields[9].rules.label || "Current Status"} {fields[9].rules.required ? <span className="text-danger">*</span> : ""}</Form.Label>
                             <Form.Select
-                                name={fields[8].name}
+                                name={fields[9].name}
                                 value={formData.currentStatus}
                                 onChange={handleChange}
                                 onBlur={() =>
@@ -290,10 +313,10 @@ const CreateVehicle: React.FC = () => {
 
                         {/* Location */}
                         <Col md={6} className="mb-3">
-                            <Form.Label className="fw-semibold">{fields[9].rules.label || "Location"} {fields[9].rules.required ? <span className="text-danger">*</span> : ""}</Form.Label>
+                            <Form.Label className="fw-semibold">{fields[10].rules.label || "Location"} {fields[10].rules.required ? <span className="text-danger">*</span> : ""}</Form.Label>
                             <Form.Control
                                 type="text"
-                                name={fields[9].name}
+                                name={fields[10].name}
                                 placeholder="Enter location"
                                 value={formData.location}
                                 onChange={handleChange}

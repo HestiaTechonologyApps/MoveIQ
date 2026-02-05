@@ -10,6 +10,8 @@ export interface Vehicle {
     engineNumber: string;
     vehicleType: string;
     registrationExpiry: string;
+    insuranceExpiry?:string;
+    insuranceExpiryString?:string;
     currentStatus: string;
     location: string;
 }

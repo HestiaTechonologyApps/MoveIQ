@@ -14,6 +14,7 @@ const columns = [
     { label: "Chasis Number", key: "chassisNumber" },
     { label: "Registration Number", key: "registrationNumber" },
     { label: "Registration Expiry", key: "registrationExpiryString" },
+    { label: "Insurance Expiry", key: "insuranceExpiryString" },
     { label: "Current Status", key: "currentStatus" },
     { label: "Location", key: "location" },
 
